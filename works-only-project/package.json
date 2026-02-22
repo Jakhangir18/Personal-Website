@@ -1,0 +1,19 @@
+{
+  "name": "works-only-project",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.7.13",
+    "autoprefixer": "^10.4.21",
+    "gsap": "^3.13.0",
+    "modern-normalize": "^3.0.1",
+    "sass": "^1.89.0"
+  }
+}

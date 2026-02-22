@@ -10,7 +10,7 @@ To run the project locally:
 
 ```bash
 # 1. Clone this repo
-git clone https://github.com/your-username/Jack-Portfolio.git
+git clone https://github.com/
 cd Jack-Portfolio
 
 # 2. Install dependencies
