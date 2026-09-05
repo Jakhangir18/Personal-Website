@@ -666,6 +666,17 @@ while (i < projects.length) {
         0
       )
 
+      // NOTE: left as an animated clip-path rather than swapped for a
+      // transform-based reveal. `container` (.s__inner) already has its
+      // own CSS transform (translate3d driven by the --scroll-progress
+      // custom property, set every tick()) declared in the stylesheet.
+      // GSAP's transform-related tweens (x/y/scale/etc.) write the whole
+      // inline `transform` shorthand from their own internal state, which
+      // would silently clobber that stylesheet-driven translate for as
+      // long as this element has ever been tweened — breaking the
+      // scroll-linked vertical motion. Doing this properly means moving
+      // the --scroll-progress translate to also be GSAP/JS-owned, which
+      // is a bigger refactor than this pass; left as-is.
       tl.fromTo(
         container,
         {
@@ -1096,7 +1107,12 @@ while (i < projects.length) {
 
       height: var(--height);
 
-      clip-path: inset(0 -1rem);
+      // No `overflow` is set here, so the default is already `visible`.
+      // `clip-path: inset(0 -1rem)` only restricted the clip region to
+      // 1rem *beyond* the box's own edges — strictly more permissive than
+      // the box itself, i.e. functionally the same as no clip-path at
+      // all. Merely having a non-`none` clip-path still costs a forced
+      // compositing/isolation group on this element, so it's removed.
     }
 
     .s__inner {
