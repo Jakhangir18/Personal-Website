@@ -190,6 +190,8 @@ while (i < projects.length) {
     scene: HTMLElement
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
+    staticCanvas: HTMLCanvasElement
+    staticCtx: CanvasRenderingContext2D
     title: HTMLElement
     videos: NodeListOf<HTMLVideoElement>
 
@@ -214,6 +216,7 @@ while (i < projects.length) {
     letters: any[]
     works: any[]
     points: any[]
+    pointsGap: number
 
     tl: gsap.core.Timeline
     animationProgress: number
@@ -241,6 +244,16 @@ while (i < projects.length) {
       this.scene = this.container.querySelector('.js-scene')
       this.canvas = this.container.querySelector('.js-canvas')
       this.ctx = this.canvas.getContext('2d')
+      // Nearest-neighbor sampling on drawImage() so the pre-rendered dot
+      // field (below) isn't softened by bilinear resampling when it's
+      // blitted at a fractional-pixel flow offset.
+      this.ctx.imageSmoothingEnabled = false
+      // Offscreen buffer holding the point grid pre-rendered at rest
+      // (pointsProgress === 1, no flow offset). Most of the scroll spends
+      // pointsProgress at 1, so the steady-state per-frame cost becomes a
+      // single drawImage() instead of re-issuing every point's rect().
+      this.staticCanvas = document.createElement('canvas')
+      this.staticCtx = this.staticCanvas.getContext('2d')
       this.title = this.container.querySelector('.js-title')
       this.videos = this.container.querySelectorAll('video')
 
@@ -403,6 +416,8 @@ while (i < projects.length) {
 
       Ticker.nextTick(() => {
         this.ctx.fillStyle = color
+        this.staticCtx.fillStyle = color
+        this.renderStaticPoints()
       })
     }
 
@@ -893,7 +908,14 @@ while (i < projects.length) {
 
       this.points = []
 
-      const gap = 24
+      // Was 24 (≈5184 points on a 1920x1080 viewport, redrawn every
+      // frame via individual ctx.rect() calls). 36 cuts that to ≈2300
+      // points, and the steady-state (pointsProgress === 1) frame cost is
+      // now a single drawImage() from the pre-rendered static field
+      // below, regardless of point count.
+      const gap = 36
+      this.pointsGap = gap
+
       const cols = Math.ceil((bounding.width * 1.2) / gap)
       const rows = Math.ceil((bounding.height * 1.2) / gap)
 
@@ -921,19 +943,44 @@ while (i < projects.length) {
           })
         }
       }
+
+      this.renderStaticPoints()
+    }
+
+    /**
+     * Render the static dot field (pointsProgress === 1, no flow offset)
+     * into the offscreen canvas once, instead of every frame.
+     */
+    renderStaticPoints() {
+      const { bounding, points, staticCanvas, staticCtx } = this
+
+      if (!staticCtx || !points.length) return
+
+      staticCanvas.width = bounding.width
+      staticCanvas.height = bounding.height
+
+      staticCtx.clearRect(0, 0, bounding.width, bounding.height)
+
+      staticCtx.beginPath()
+
+      points.forEach((point) => {
+        staticCtx.rect(point.x, point.y, 0.5, 0.5)
+      })
+
+      staticCtx.fill()
     }
 
     /**
      * Move points
      */
     movePoints() {
-      const { points, animationProgress, last } = this
+      const { points, pointsGap, animationProgress, last } = this
 
       const rAnimationProgress = Math.round(animationProgress * 100) / 100
 
       if (rAnimationProgress === last.animationProgress) return
 
-      const flowX = (animationProgress * -0.05) % 24
+      const flowX = (animationProgress * -0.05) % pointsGap
 
       points.forEach((p) => {
         // Flow
@@ -945,8 +992,15 @@ while (i < projects.length) {
      * Draw points
      */
     drawPoints() {
-      const { bounding, ctx, points, animationProgress, pointsProgress, last } =
-        this
+      const {
+        bounding,
+        ctx,
+        points,
+        staticCanvas,
+        animationProgress,
+        pointsProgress,
+        last,
+      } = this
 
       const rAnimationProgress = Math.round(animationProgress * 100) / 100
       const rPointsProgress = Math.round(pointsProgress * 100) / 100
@@ -959,16 +1013,29 @@ while (i < projects.length) {
 
       ctx.clearRect(0, 0, bounding.width, bounding.height)
 
-      ctx.beginPath()
+      if (rPointsProgress >= 1) {
+        // Steady state (the vast majority of the scroll range): blit the
+        // pre-rendered dot field, translated by the current flow offset,
+        // instead of re-issuing a rect() per point every frame.
+        const flowX = points.length ? points[0].flowX : 0
 
-      points.forEach((point) => {
-        const x = point.x + point.dx * (1 - pointsProgress) * 0.2 + point.flowX
-        const y = point.y + point.dy * (1 - pointsProgress) * 0.2
+        ctx.drawImage(staticCanvas, flowX, 0)
+      } else {
+        // Mid entrance/exit transition: points are pulled toward/away
+        // from the center by pointsProgress, which the static field
+        // doesn't capture — fall back to the original per-point draw.
+        ctx.beginPath()
 
-        ctx.rect(x, y, 0.5, 0.5)
-      })
+        points.forEach((point) => {
+          const x =
+            point.x + point.dx * (1 - pointsProgress) * 0.2 + point.flowX
+          const y = point.y + point.dy * (1 - pointsProgress) * 0.2
 
-      ctx.fill()
+          ctx.rect(x, y, 0.5, 0.5)
+        })
+
+        ctx.fill()
+      }
 
       last.pointsProgress = rPointsProgress
       last.animationProgress = rAnimationProgress
