@@ -301,15 +301,28 @@ while (i < projects.length) {
      * Init
      */
     init() {
-      this.setCtxStyle()
-      this.setSize()
-      this.setMask()
-      this.setPoints()
-      this.setLetters()
-      this.setWorks()
-      this.setTimeline()
+      // setPoints()/setLetters() build the canvas point grid and ghost
+      // letters — not needed for first paint since this section is
+      // below the fold. Defer to idle time (with a timeout fallback) so
+      // this heavy synchronous work doesn't compete with the hero's
+      // paint/intro on the main thread.
+      const run = () => {
+        this.setCtxStyle()
+        this.setSize()
+        this.setMask()
+        this.setPoints()
+        this.setLetters()
+        this.setWorks()
+        this.setTimeline()
 
-      this.bindEvents()
+        this.bindEvents()
+      }
+
+      if ('requestIdleCallback' in window) {
+        ;(window as any).requestIdleCallback(run, { timeout: 2000 })
+      } else {
+        setTimeout(run, 200)
+      }
     }
 
     /**

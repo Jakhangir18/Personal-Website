@@ -58,16 +58,24 @@ import ASeparator from './ASeparator.astro'
       this.el = document.querySelector('.s-hero')
       this.words = this.el.querySelectorAll('.js-word')
 
+      // Hide behind the intro overlay via JS instead of a static CSS
+      // rule, so the very first (pre-script) paint shows the real hero
+      // text at full opacity/color — that's what lets the browser count
+      // it as the LCP element instead of the decorative star image.
+      // The opaque .site-intro layer above it means users never see
+      // this un-hidden frame; only the LCP measurement benefits.
+      this.el.style.opacity = '0'
+
       // Properties
       this.isPaused = true
       this.isWaiting = true
 
-      // Init
-      if (document.readyState === 'complete') {
-        Ticker.nextTick(this.init, this)
-      } else {
-        Emitter.once('siteLoaded', this.init, this)
-      }
+      // Init — do not wait for the full page (siteLoaded/window "load",
+      // which is gated on every asset incl. work-section videos). The
+      // intro reveal only needs this listener attached before the
+      // site-wide 'intro' event fires; fonts are awaited separately
+      // inside splitWords() via document.fonts.ready.
+      Ticker.nextTick(this.init, this)
     }
 
     /**
@@ -324,7 +332,9 @@ import ASeparator from './ASeparator.astro'
 
     min-height: calc(100svh - 7rem - 1px);
 
-    opacity: 0;
+    // Hidden state is applied via JS (see the component script) instead
+    // of here, so the raw HTML/CSS paints the hero text visibly before
+    // any script runs — required for it to count as the LCP element.
     overflow: hidden;
 
     @include mq(phone) {
