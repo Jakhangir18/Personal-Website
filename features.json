@@ -21,7 +21,7 @@
     "id": "F4",
     "title": "Zero runtime errors",
     "done_when": "Load + full scroll in Chromium and WebKit: 0 console errors, 0 failed network requests, 0 404 assets",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F5",
@@ -33,7 +33,7 @@
     "id": "F6",
     "title": "Build and types clean",
     "done_when": "init.sh exits 0: npm run build succeeds, astro check reports 0 errors",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F7",
@@ -57,7 +57,7 @@
     "id": "F10",
     "title": "Risky visual perf changes on branch audit/visual-risky",
     "done_when": "Branch audit/visual-risky has separate commits for: will-change reduction, mix-blend-mode overlay replacement, clip-path simplification, canvas point-grid density; each commit has before/after screenshots (desktop+mobile, Chromium+WebKit) and FPS numbers in audit/out/risky/; branch pushed; user picks what to merge",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F11",
