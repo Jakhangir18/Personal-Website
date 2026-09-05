@@ -202,6 +202,91 @@ async function measureScrollSequence(page, opts) {
   return result;
 }
 
+// CDP Performance domain metrics (Chromium only). Diffing before/after a
+// scroll sequence gives main-thread cost (script/layout/style/task duration)
+// that headless rAF-based FPS can't see on this GPU-less VPS, since raster
+// dominates the FPS number regardless of JS work.
+const CDP_METRIC_KEYS = [
+  'ScriptDuration',
+  'LayoutDuration',
+  'RecalcStyleDuration',
+  'LayoutCount',
+  'RecalcStyleCount',
+  'TaskDuration',
+];
+// These are reported by CDP in seconds; convert to ms for the JSON output.
+// LayoutCount/RecalcStyleCount are plain counts, not durations.
+const CDP_DURATION_KEYS = new Set(['ScriptDuration', 'LayoutDuration', 'RecalcStyleDuration', 'TaskDuration']);
+
+async function getCdpMetricsMap(cdpSession) {
+  const { metrics } = await cdpSession.send('Performance.getMetrics');
+  const map = {};
+  for (const m of metrics) map[m.name] = m.value;
+  return map;
+}
+
+// Runs `fn` and returns { result, cdp }, where `cdp` is the delta of
+// CDP_METRIC_KEYS across the call (null when cdpSession is null, i.e. WebKit).
+async function withCdpDelta(cdpSession, fn) {
+  if (!cdpSession) {
+    return { result: await fn(), cdp: null };
+  }
+  const before = await getCdpMetricsMap(cdpSession);
+  const result = await fn();
+  const after = await getCdpMetricsMap(cdpSession);
+  const cdp = {};
+  for (const key of CDP_METRIC_KEYS) {
+    let delta = (after[key] ?? 0) - (before[key] ?? 0);
+    if (CDP_DURATION_KEYS.has(key)) delta *= 1000; // seconds -> ms
+    cdp[key] = Number(delta.toFixed(1));
+  }
+  return { result, cdp };
+}
+
+// GSAP ticker instrumentation: a high-priority listener stamps tick start,
+// a lowest-priority listener (appended normally, so it runs after whatever
+// else is on the ticker at start time) stamps tick end. gsap.ticker.add's
+// third arg `prioritize` unshifts the callback to the front when true, so
+// prioritize=true on the start listener makes it run before other ticker
+// work registered before it; the end listener is added with prioritize=false
+// so it lands at the back of the queue as of registration time. Reports
+// null when window.gsap is absent (nothing to instrument).
+async function startGsapTickRecording(page) {
+  return await evalWithRetry(page, () => {
+    if (!window.gsap || !window.gsap.ticker) return false;
+    const state = { tickMsTotal: 0, tickMsMax: 0, tickCount: 0, start: 0 };
+    const startFn = () => {
+      state.start = performance.now();
+    };
+    const endFn = () => {
+      const dt = performance.now() - state.start;
+      state.tickMsTotal += dt;
+      if (dt > state.tickMsMax) state.tickMsMax = dt;
+      state.tickCount++;
+    };
+    window.gsap.ticker.add(startFn, false, true); // prioritize=true -> runs first
+    window.gsap.ticker.add(endFn, false, false); // prioritize=false -> runs last
+    window.__gsapTick = { state, startFn, endFn };
+    return true;
+  });
+}
+
+async function stopGsapTickRecording(page, started) {
+  if (!started) return null;
+  return await evalWithRetry(page, () => {
+    if (!window.__gsapTick) return null;
+    const { state, startFn, endFn } = window.__gsapTick;
+    window.gsap.ticker.remove(startFn);
+    window.gsap.ticker.remove(endFn);
+    delete window.__gsapTick;
+    return {
+      tickMsTotal: Number(state.tickMsTotal.toFixed(2)),
+      tickMsMax: Number(state.tickMsMax.toFixed(2)),
+      tickCount: state.tickCount,
+    };
+  });
+}
+
 async function takeScreenshots(page, outPrefix) {
   const shots = {};
   const pageHeight = await evalWithRetry(page, () => document.documentElement.scrollHeight);
@@ -237,6 +322,7 @@ async function runForViewport(browserType, browserName, url, vp) {
 
   const consoleMessages = [];
   const failedRequests = [];
+  let abortedMedia = 0;
 
   page.on('console', (msg) => {
     const type = msg.type();
@@ -248,11 +334,16 @@ async function runForViewport(browserType, browserName, url, vp) {
     consoleMessages.push({ type: 'pageerror', text: String(err && err.message ? err.message : err) });
   });
   page.on('requestfailed', (req) => {
-    failedRequests.push({
-      url: req.url(),
-      method: req.method(),
-      failure: req.failure() && req.failure().errorText,
-    });
+    const url = req.url();
+    const failure = req.failure() && req.failure().errorText;
+    // A video's src getting swapped (e.g. responsive source switch) aborts
+    // the in-flight load - that's expected, not a real failure. Count it
+    // separately instead of polluting failedRequests.
+    if (failure && failure.includes('ERR_ABORTED') && /\.(mp4|webm)(\?|$)/i.test(url)) {
+      abortedMedia++;
+      return;
+    }
+    failedRequests.push({ url, method: req.method(), failure });
   });
   page.on('response', (res) => {
     if (res.status() >= 400) {
@@ -262,6 +353,13 @@ async function runForViewport(browserType, browserName, url, vp) {
 
   await page.addInitScript(PERF_INIT_SCRIPT);
 
+  // CDP Performance metrics are Chromium-only (no WebKit CDP support).
+  let cdpSession = null;
+  if (browserName === 'chromium') {
+    cdpSession = await context.newCDPSession(page);
+    await cdpSession.send('Performance.enable');
+  }
+
   await page.goto(url, { waitUntil: 'load', timeout: 30000 });
   // Settle time: on a Vite/Astro dev server the HMR client can trigger a
   // brief extra reload right after initial load; wait it out before
@@ -269,14 +367,22 @@ async function runForViewport(browserType, browserName, url, vp) {
   await page.waitForTimeout(1500);
 
   // Full-page scroll measurement (~8s down + settle + up).
-  const fullPage = await measureScrollSequence(page, { totalMs: 8000, targetSelector: null });
+  const fullPageMeasure = await withCdpDelta(cdpSession, () =>
+    measureScrollSequence(page, { totalMs: 8000, targetSelector: null })
+  );
+  const fullPage = { ...fullPageMeasure.result, cdp: fullPageMeasure.cdp };
   await evalWithRetry(page, () => window.scrollTo(0, 0));
   await page.waitForTimeout(500);
 
   // Work-section scroll measurement: scroll until #work enters view, then
   // measure scrolling through it to its end.
   await scrollToSelectorTop(page, '#work');
-  const workSection = await measureScrollSequence(page, { totalMs: 8000, targetSelector: '#work' });
+  const gsapStarted = await startGsapTickRecording(page);
+  const workSectionMeasure = await withCdpDelta(cdpSession, () =>
+    measureScrollSequence(page, { totalMs: 8000, targetSelector: '#work' })
+  );
+  const gsapTick = await stopGsapTickRecording(page, gsapStarted);
+  const workSection = { ...workSectionMeasure.result, cdp: workSectionMeasure.cdp, gsapTick };
   await evalWithRetry(page, () => window.scrollTo(0, 0));
   await page.waitForTimeout(300);
 
@@ -319,6 +425,7 @@ async function runForViewport(browserType, browserName, url, vp) {
       messages: consoleMessages,
     },
     failedRequests,
+    abortedMedia,
     screenshots,
     axe: axeResults,
   };
