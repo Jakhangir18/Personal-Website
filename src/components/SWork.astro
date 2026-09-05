@@ -234,6 +234,16 @@ while (i < projects.length) {
     loadIsStarted: boolean
     eagerLoadCount: number
 
+    // Media query mirroring the `phone` SCSS breakpoint, used so the JS
+    // transforms below match the CSS phone override (transform: none)
+    // instead of always emitting the desktop calc().
+    mqPhone: MediaQueryList
+    // quickSetter()s for the elements that used to read --scroll-progress
+    // via CSS var() — see applyScrollProgress().
+    setPathInnerTransform: Function
+    setContainerTransform: Function
+    setCanvasTransform: Function
+
     /**
      * Constructor
      */
@@ -270,6 +280,28 @@ while (i < projects.length) {
         pathInner: this.el.querySelector('.js-mask-path-inner'),
         pathLines: this.el.querySelector('.js-mask-path-lines'),
       }
+
+      // Same media query as the `phone` SCSS breakpoint (see
+      // _breakpoints.scss) — checked instead of hardcoding a width so
+      // applyScrollProgress() picks the same branch CSS would have.
+      this.mqPhone = window.matchMedia(
+        'only screen and (max-width: 767px) and (orientation: landscape), only screen and (max-width: 576px)'
+      )
+
+      // These elements' transforms used to read --scroll-progress via
+      // CSS var(), which is inherited from `.s-work` and so invalidated
+      // the style of every descendant on every tick(). Writing the
+      // resolved transform string directly onto just these three
+      // elements instead invalidates only them.
+      this.setPathInnerTransform = gsap.quickSetter(
+        this.mask.pathInner,
+        'transform'
+      )
+      this.setContainerTransform = gsap.quickSetter(
+        this.container,
+        'transform'
+      )
+      this.setCanvasTransform = gsap.quickSetter(this.canvas, 'transform')
 
       this.letters = []
       this.title.querySelectorAll('.js-letter').forEach((_letter) => {
@@ -339,6 +371,10 @@ while (i < projects.length) {
         this.setWorks()
         this.setTimeline()
 
+        // Match the initial state the removed CSS var()-based transforms
+        // used to render, before the first tick() runs.
+        this.applyScrollProgress(this.scrollProgress)
+
         // The heavy state onIntersect/tick depend on now exists.
         // Replay the current intersection state in case it was
         // already delivered (and handled as a no-op) while this setup
@@ -379,6 +415,11 @@ while (i < projects.length) {
         this.setLetters()
         this.setWorks()
         this.setTimeline()
+
+        // The phone/desktop branch in applyScrollProgress() depends on
+        // viewport width — re-apply so a breakpoint crossing takes effect
+        // immediately instead of waiting for the next scroll tick.
+        this.applyScrollProgress(this.scrollProgress)
       }
     }
 
@@ -686,16 +727,13 @@ while (i < projects.length) {
       )
 
       // NOTE: left as an animated clip-path rather than swapped for a
-      // transform-based reveal. `container` (.s__inner) already has its
-      // own CSS transform (translate3d driven by the --scroll-progress
-      // custom property, set every tick()) declared in the stylesheet.
-      // GSAP's transform-related tweens (x/y/scale/etc.) write the whole
-      // inline `transform` shorthand from their own internal state, which
-      // would silently clobber that stylesheet-driven translate for as
-      // long as this element has ever been tweened — breaking the
-      // scroll-linked vertical motion. Doing this properly means moving
-      // the --scroll-progress translate to also be GSAP/JS-owned, which
-      // is a bigger refactor than this pass; left as-is.
+      // transform-based reveal. `container` (.s__inner) already gets its
+      // own transform written every tick() by applyScrollProgress()
+      // (via a quickSetter). GSAP's transform-related tweens (x/y/scale/
+      // etc.) write the whole inline `transform` shorthand from their own
+      // internal state, which would silently clobber that scroll-linked
+      // translate for as long as this element has ever been tweened —
+      // breaking the scroll-linked vertical motion. Left as clip-path.
       tl.fromTo(
         container,
         {
@@ -1092,10 +1130,7 @@ while (i < projects.length) {
       if (rScrollProgress !== last.scrollProgress) {
         last.scrollProgress = rScrollProgress
 
-        this.el.style.setProperty(
-          '--scroll-progress',
-          String(this.scrollProgress)
-        )
+        this.applyScrollProgress(this.scrollProgress)
       }
 
       // Movement
@@ -1104,6 +1139,38 @@ while (i < projects.length) {
 
       // Draw
       this.drawPoints()
+    }
+
+    /**
+     * Apply scroll progress
+     *
+     * Transcribed from the CSS this used to drive via the --scroll-progress
+     * custom property (inherited from `.s-work`, so every write invalidated
+     * the style of the whole section's subtree). Writing the resolved
+     * transform string directly to each of the three consuming elements
+     * instead invalidates only those elements.
+     */
+    applyScrollProgress(scrollProgress) {
+      // .s__mask__path-inner: transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
+      this.setPathInnerTransform(
+        `translate3d(0, ${scrollProgress * 48}px, 0)`
+      )
+
+      // .s__inner and .s__canvas both had `transform: none;` under
+      // @include mq(phone) — mirrored here via matchMedia().
+      if (this.mqPhone.matches) {
+        this.setContainerTransform('none')
+        this.setCanvasTransform('none')
+      } else {
+        // .s__inner: transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
+        this.setContainerTransform(
+          `translate3d(0, ${scrollProgress * -15}%, 0)`
+        )
+        // .s__canvas: transform: translate3d(0, calc(var(--scroll-progress) * -5%), 0);
+        this.setCanvasTransform(
+          `translate3d(0, ${scrollProgress * -5}%, 0)`
+        )
+      }
     }
   }
 
@@ -1178,7 +1245,8 @@ while (i < projects.length) {
         stroke: color(secondary);
         stroke-width: 1px;
 
-        transform: translate3d(0, calc(var(--scroll-progress) * 48px), 0);
+        // transform driven from JS — see Section.applyScrollProgress()
+        // in the script above.
       }
 
       &__path-lines {
@@ -1212,13 +1280,11 @@ while (i < projects.length) {
       height: 100%;
 
       background: color(secondary);
-      transform: translate3d(0, calc(var(--scroll-progress) * -15%), 0);
+      // transform driven from JS — see Section.applyScrollProgress() in
+      // the script above (still emits `none` under the phone breakpoint,
+      // matching the mq(phone) override this used to have here).
 
       color: color(primary);
-
-      @include mq(phone) {
-        transform: none;
-      }
     }
 
     .s__ruler {
@@ -1368,11 +1434,9 @@ while (i < projects.length) {
       width: 100%;
       height: 100%;
 
-      transform: translate3d(0, calc(var(--scroll-progress) * -5%), 0);
-
-      @include mq(phone) {
-        transform: none;
-      }
+      // transform driven from JS — see Section.applyScrollProgress() in
+      // the script above (still emits `none` under the phone breakpoint,
+      // matching the mq(phone) override this used to have here).
     }
 
     // `will-change` is only declared while the section is intersecting
