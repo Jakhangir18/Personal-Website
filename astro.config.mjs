@@ -16,6 +16,9 @@ export default defineConfig({
   },
 
   vite: {
+    server: {
+      allowedHosts: ['.ts.net']
+    },
     resolve: {
       alias: {
         '@/': `${path.resolve(__dirname, 'src')}/`

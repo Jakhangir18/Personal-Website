@@ -1,0 +1,1 @@
+2026-09-05 session 1 start: audit branch audit/perf-bugs created. Harness files written (features.json F1-F9, init.sh). agy map done: Lenis in src/pages/index.astro:283-291 ticked by gsap.ticker; SWork scrub timeline at SWork.astro:588, per-frame tick() at SWork.astro:906-933 (canvas redraw). Next: run init.sh baseline, Playwright FPS/trace baseline, then fix SWork.

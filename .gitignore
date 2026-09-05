@@ -1,1 +1,8 @@
 node_modules
+audit/out/
+audit/node_modules/
+.astro/
+dist/
+.DS_Store
+works-only-project/node_modules/
+works-only-project/dist/
