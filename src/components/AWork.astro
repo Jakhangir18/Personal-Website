@@ -202,8 +202,6 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
     transform-style: preserve-3d;
 
-    will-change: transform;
-
     @include mq(phone) {
       padding: 0.25rem;
     }
@@ -252,6 +250,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
     &.is-inview {
       content-visibility: visible;
+
+      // Only the video currently attr[progress]-driven by the scrub
+      // timeline needs a promoted layer; keep it off for everything
+      // outside the viewport-visibility window.
+      will-change: transform;
     }
   }
 </style>
