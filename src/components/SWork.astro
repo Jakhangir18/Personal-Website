@@ -1479,31 +1479,10 @@ while (i < projects.length) {
         left: 50%;
         z-index: 2;
 
-        transform: rotateY(calc(var(--progress) * -20deg))
-          translate3d(
-            calc(var(--progress) * (50vw + 100%) - 50%),
-            calc(var(--y) * 50% - 50%),
-            calc(var(--progress) * var(--progress) * -5rem)
-          )
-          scale(var(--size));
-
-        @include mq(tablet) {
-          transform: rotateY(calc(var(--progress) * -20deg))
-            translate3d(
-              calc(var(--progress) * (50vw + 100%) - 50%),
-              calc(var(--y) * 50% - 50%),
-              calc(var(--progress) * var(--progress) * -5rem)
-            );
-        }
-
-        @include mq(phone) {
-          transform: rotateY(calc(var(--progress) * -20deg))
-            translate3d(
-              calc(var(--progress) * (50vw + 100%) - 50%),
-              calc(var(--y) * 100% - 50%),
-              calc(var(--progress) * var(--progress) * -5rem)
-            );
-        }
+        // transform driven from JS — see AWork.astro's
+        // computeTransform()/attributeChangedCallback(), which mirrors
+        // the tablet (no scale) and phone (no scale, --y * 100%)
+        // breakpoint branches this used to have here.
       }
     }
 

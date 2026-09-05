@@ -33,6 +33,17 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 </a-work>
 
 <script>
+  import { gsap } from 'gsap'
+
+  // Shared across every <a-work> instance (45 on this page) — mirrors the
+  // `tablet`/`phone` SCSS breakpoints (see _breakpoints.scss) so
+  // computeTransform() below picks the same branch the removed
+  // .s__scene__work CSS did.
+  const mqTablet = window.matchMedia('only screen and (max-width: 987px)')
+  const mqPhone = window.matchMedia(
+    'only screen and (max-width: 767px) and (orientation: landscape), only screen and (max-width: 576px)'
+  )
+
   class AWork extends HTMLElement {
     static observedAttributes = ['progress']
 
@@ -42,6 +53,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     isPlaying: boolean
     playPromise: Promise<void> | null
     playGeneration: number
+
+    // quickSetter for the transform this element's rule (.s__scene__work,
+    // in SWork.astro) used to resolve via var(--progress)/var(--y)/
+    // var(--size).
+    setTransform: Function
 
     /**
      * Init
@@ -56,6 +72,8 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       this.playPromise = null
       this.playGeneration = 0
 
+      this.setTransform = gsap.quickSetter(this, 'transform')
+
       // Events
       this.link.addEventListener('click', this.onClick.bind(this))
     }
@@ -65,9 +83,11 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
      */
     attributeChangedCallback(name, oldValue, newValue) {
       if (name === 'progress') {
-        this.style.setProperty('--progress', newValue)
+        const progress = parseFloat(newValue)
 
-        const isOutOfView = Math.abs(parseFloat(newValue)) >= 0.98
+        this.setTransform(this.computeTransform(progress))
+
+        const isOutOfView = Math.abs(progress) >= 0.98
 
         if (isOutOfView) {
           if (this.classList.contains('is-inview')) {
@@ -79,6 +99,38 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
           }
         }
       }
+    }
+
+    /**
+     * Compute transform
+     *
+     * Transcribed from `.s__scene__work`'s transform (SWork.astro), which
+     * used to resolve var(--progress)/var(--y)/var(--size) via CSS.
+     * --y/--size are still read from this element's own inline style —
+     * set once per resize by Section.setWorks() — but that's a plain
+     * CSSStyleDeclaration read (this.style), not getComputedStyle(), so
+     * it doesn't force a style recalc.
+     */
+    computeTransform(progress) {
+      const y = parseFloat(this.style.getPropertyValue('--y')) || 0
+      const size = parseFloat(this.style.getPropertyValue('--size')) || 1
+
+      // transform: rotateY(calc(var(--progress) * -20deg))
+      const rotateYDeg = progress * -20
+      // translate3d(
+      //   calc(var(--progress) * (50vw + 100%) - 50%),
+      const translateX = `calc(${progress} * (50vw + 100%) - 50%)`
+      //   calc(var(--y) * 50% - 50%),           (default/tablet)
+      //   calc(var(--y) * 100% - 50%),          (phone)
+      const isPhone = mqPhone.matches
+      const translateY = `calc(${y} * ${isPhone ? 100 : 50}% - 50%)`
+      //   calc(var(--progress) * var(--progress) * -5rem)
+      // )
+      const translateZ = `${progress * progress * -5}rem`
+      // scale(var(--size));   — default only, dropped under tablet/phone
+      const scalePart = isPhone || mqTablet.matches ? '' : ` scale(${size})`
+
+      return `rotateY(${rotateYDeg}deg) translate3d(${translateX}, ${translateY}, ${translateZ})${scalePart}`
     }
 
     /**
