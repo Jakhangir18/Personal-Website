@@ -6,8 +6,8 @@ Repository: github.com/Jakhangir18/Personal-Website. `main` untouched. All work 
 
 | URL | Branch | What it is |
 |---|---|---|
-| https://vps-worker.taild24189.ts.net | `audit/perf-bugs` (e0b62f9) | safe fixes only, no visual change intended |
-| https://vps-worker.taild24189.ts.net:8443 | `audit/visual-risky` (67f2085) | perf-bugs + 9 riskier commits, biggest speed gain |
+| https://vps-worker.taild24189.ts.net | `audit/perf-bugs` (511646e) | safe fixes only, no visual change intended |
+| https://vps-worker.taild24189.ts.net:8443 | `audit/visual-risky` (2538ce5) | perf-bugs + 9 riskier commits, biggest speed gain |
 | https://vps-worker.taild24189.ts.net:8444 | `proto/work-a` | Work section prototype A "Index" (large-type list, hover video) |
 | https://vps-worker.taild24189.ts.net:8445 | `proto/work-b` | prototype B "Stack" (full-bleed sticky panels) |
 | https://vps-worker.taild24189.ts.net:8446 | `proto/work-c` | prototype C "Strip" (horizontal filmstrip + title ticker) |
@@ -60,6 +60,10 @@ Risky branch `audit/visual-risky` (on top of the above):
 ## Safari gate (only you can run it - real iPhone, real Safari)
 
 Open :443 and :8443 on the phone. Scroll the Work section down and back up several times, fast and slow. Let the address bar collapse and return at least twice while the section is on screen. Watch for: a band at the top or bottom, the pinned scene tearing away, the fixed layer bleeding into the next section, the area going black or blank. Also: videos start at all (muted + playsinline), and the contrast toggle wipe still looks right on :8443. Report symptom + where + what you were doing; a screen recording beats words.
+
+## Keyboard audit (F5)
+
+Tab from the top reaches 10 of 56 controls; the other 46 are zero-area until their section animates in (42 placeholder work links, a duplicate CodePen icon, the footer mailto). None of the reached controls had a visible focus ring - the reset removed the outline; a sitewide `:focus-visible` outline is now in `_base.scss` (511646e). axe: 0 critical/serious; Lighthouse Accessibility 100. Re-run `cd audit && node keyboard.mjs` after the Work redesign lands.
 
 ## Still open / next
 
