@@ -23,14 +23,13 @@ class Ticker {
    * Tick
    */
   tick(time, delta) {
-    const self = this
-
     this.delta = delta
 
-    this.callbacks.forEach((object, index) => {
-      object.callback.apply(object.context)
+    const queue = this.callbacks
+    this.callbacks = []
 
-      delete self.callbacks[index]
+    queue.forEach((object) => {
+      object.callback.apply(object.context)
     })
 
     Emitter.emit('tick', time * 1000)

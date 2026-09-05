@@ -1,11 +1,68 @@
 [
-  {"id": "F1", "title": "Work section scrolls smoothly in Chromium", "done_when": "Playwright Chromium trace while scrolling through #work: average FPS >= 55, no long task > 100 ms after first paint; SWork.tick() cost per frame < 4 ms in a CPU profile", "passes": false},
-  {"id": "F2", "title": "Work section stable in WebKit (Safari proxy)", "done_when": "Playwright WebKit: scroll top-to-bottom through #work 3 times; layout screenshots at 25/50/75/100% match Chromium within tolerance; no stuck scroll, no console errors", "passes": false},
-  {"id": "F3", "title": "Core Web Vitals in budget", "done_when": "Lighthouse on production build (astro preview): mobile Performance >= 85, desktop >= 95; LCP < 2.5 s, CLS < 0.1, TBT < 200 ms", "passes": false},
-  {"id": "F4", "title": "Zero runtime errors", "done_when": "Load + full scroll in Chromium and WebKit: 0 console errors, 0 failed network requests, 0 404 assets", "passes": false},
-  {"id": "F5", "title": "Accessibility baseline", "done_when": "axe-core on rendered page: 0 critical/serious violations; Lighthouse Accessibility >= 95; keyboard can reach every link", "passes": false},
-  {"id": "F6", "title": "Build and types clean", "done_when": "init.sh exits 0: npm run build succeeds, astro check reports 0 errors", "passes": false},
-  {"id": "F7", "title": "Repository hygiene", "done_when": "node_modules, .astro, dist, .DS_Store untracked and ignored; git ls-files | wc -l < 200; working tree clean after commit", "passes": false},
-  {"id": "F8", "title": "Owner's real works placed in Work section", "done_when": "User-supplied works (video/image + title + link) render in SWork; design approved by user in own browser; 21st.dev components used only where they fit", "passes": false},
-  {"id": "F9", "title": "Preview reachable for the owner", "done_when": "astro preview served on tailscale0 via tailscale serve, URL logged in claude-progress.txt, survives laptop sleep (runs in tmux on VPS)", "passes": false}
+  {
+    "id": "F1",
+    "title": "Work section scrolls smoothly in Chromium",
+    "done_when": "Playwright Chromium trace while scrolling through #work: average FPS >= 55, no long task > 100 ms after first paint; SWork.tick() cost per frame < 4 ms in a CPU profile",
+    "passes": false
+  },
+  {
+    "id": "F2",
+    "title": "Work section stable in WebKit (Safari proxy)",
+    "done_when": "Playwright WebKit: scroll top-to-bottom through #work 3 times; layout screenshots at 25/50/75/100% match Chromium within tolerance; no stuck scroll, no console errors",
+    "passes": false
+  },
+  {
+    "id": "F3",
+    "title": "Core Web Vitals in budget",
+    "done_when": "Lighthouse on production build (astro preview): mobile Performance >= 85, desktop >= 95; LCP < 2.5 s, CLS < 0.1, TBT < 200 ms",
+    "passes": false
+  },
+  {
+    "id": "F4",
+    "title": "Zero runtime errors",
+    "done_when": "Load + full scroll in Chromium and WebKit: 0 console errors, 0 failed network requests, 0 404 assets",
+    "passes": false
+  },
+  {
+    "id": "F5",
+    "title": "Accessibility baseline",
+    "done_when": "axe-core on rendered page: 0 critical/serious violations; Lighthouse Accessibility >= 95; keyboard can reach every link",
+    "passes": false
+  },
+  {
+    "id": "F6",
+    "title": "Build and types clean",
+    "done_when": "init.sh exits 0: npm run build succeeds, astro check reports 0 errors",
+    "passes": false
+  },
+  {
+    "id": "F7",
+    "title": "Repository hygiene",
+    "done_when": "node_modules, .astro, dist, .DS_Store untracked and ignored; git ls-files | wc -l < 200; working tree clean after commit",
+    "passes": false
+  },
+  {
+    "id": "F8",
+    "title": "Owner's real works placed in Work section",
+    "done_when": "User-supplied works (video/image + title + link) render in SWork; design approved by user in own browser; 21st.dev components used only where they fit",
+    "passes": false
+  },
+  {
+    "id": "F9",
+    "title": "Preview reachable for the owner",
+    "done_when": "astro preview served on tailscale0 via tailscale serve, URL logged in claude-progress.txt, survives laptop sleep (runs in tmux on VPS)",
+    "passes": false
+  },
+  {
+    "id": "F10",
+    "title": "Risky visual perf changes on branch audit/visual-risky",
+    "done_when": "Branch audit/visual-risky has separate commits for: will-change reduction, mix-blend-mode overlay replacement, clip-path simplification, canvas point-grid density; each commit has before/after screenshots (desktop+mobile, Chromium+WebKit) and FPS numbers in audit/out/risky/; branch pushed; user picks what to merge",
+    "passes": false
+  },
+  {
+    "id": "F11",
+    "title": "Work section style prototypes",
+    "done_when": "2-3 style variants of the Work section built in works-only-project on branches proto/work-a, proto/work-b, proto/work-c using current Pen videos as placeholders; each has desktop+mobile screenshots in audit/out/proto/ and a 5-line rationale in claude-progress.txt; branches pushed; user picks a direction",
+    "passes": false
+  }
 ]

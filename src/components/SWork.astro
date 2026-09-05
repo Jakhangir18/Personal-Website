@@ -182,6 +182,8 @@ while (i < projects.length) {
   gsap.registerPlugin(ScrollTrigger, SlowMo)
 
   class Section {
+    static EAGER_LOAD_LIMIT = 6
+
     el: HTMLElement
     container: HTMLElement
     ruler: HTMLElement
@@ -219,13 +221,14 @@ while (i < projects.length) {
     last: {
       animationProgress: number
       pointsProgress: number
+      scrollProgress: number
     }
     scrollProgress: number
-    smoothScrollProgress: number
     state: 0
     speed: number
     isPaused: boolean
     loadIsStarted: boolean
+    eagerLoadCount: number
 
     /**
      * Constructor
@@ -276,14 +279,15 @@ while (i < projects.length) {
       this.points = []
 
       this.scrollProgress = 0
-      this.smoothScrollProgress = 0
       this.last = {
         animationProgress: 0,
         pointsProgress: 0,
+        scrollProgress: 0,
       }
 
       this.isPaused = true
       this.loadIsStarted = false
+      this.eagerLoadCount = 0
 
       // Init
       if (document.readyState === 'complete') {
@@ -362,7 +366,7 @@ while (i < projects.length) {
       )
 
       Ticker.nextTick(() => {
-        this.ctx.strokeStyle = color
+        this.ctx.fillStyle = color
       })
     }
 
@@ -582,6 +586,9 @@ while (i < projects.length) {
       let { tl } = this
 
       if (tl) {
+        if (tl.scrollTrigger) {
+          tl.scrollTrigger.kill()
+        }
         tl.kill()
       }
 
@@ -760,14 +767,23 @@ while (i < projects.length) {
         },
         '-=1'
       )
+
+      this.tl = tl
     }
 
     /**
      * Load next video
+     *
+     * Only eagerly chains through the first EAGER_LOAD_LIMIT works on
+     * intersect; the rest are loaded on demand by AWork.inView() so we don't
+     * force every video's .load() on first scroll into the section.
      */
     loadNextVideo() {
+      if (this.eagerLoadCount >= Section.EAGER_LOAD_LIMIT) return
+
       const video = Array.from(this.videos).find(
-        (video) => !video.classList.contains('is-loaded')
+        (video) =>
+          !video.classList.contains('is-loaded') && !video.getAttribute('src')
       )
 
       if (video) {
@@ -793,6 +809,7 @@ while (i < projects.length) {
      */
     videoLoaded(video) {
       video.classList.add('is-loaded')
+      this.eagerLoadCount++
       this.loadNextVideo()
     }
 
@@ -800,7 +817,11 @@ while (i < projects.length) {
      * Move letters
      */
     moveLetters() {
-      const { speed, letters, animationProgress } = this
+      const { speed, letters, animationProgress, last } = this
+
+      const rAnimationProgress = Math.round(animationProgress * 100) / 100
+
+      if (rAnimationProgress === last.animationProgress) return
 
       letters.forEach((letter, i) => {
         const letterSpeed = speed * letter.freq
@@ -859,11 +880,17 @@ while (i < projects.length) {
      * Move points
      */
     movePoints() {
-      const { points, animationProgress } = this
+      const { points, animationProgress, last } = this
+
+      const rAnimationProgress = Math.round(animationProgress * 100) / 100
+
+      if (rAnimationProgress === last.animationProgress) return
+
+      const flowX = (animationProgress * -0.05) % 24
 
       points.forEach((p) => {
         // Flow
-        p.flowX = (animationProgress * -0.05) % 24
+        p.flowX = flowX
       })
     }
 
@@ -894,7 +921,7 @@ while (i < projects.length) {
         ctx.rect(x, y, 0.5, 0.5)
       })
 
-      ctx.stroke()
+      ctx.fill()
 
       last.pointsProgress = rPointsProgress
       last.animationProgress = rAnimationProgress
@@ -904,8 +931,10 @@ while (i < projects.length) {
      * Tick
      */
     tick() {
+      const { last } = this
+
       // Calculate scroll progress
-      this.scrollProgress =
+      const scrollProgress =
         Math.max(
           Math.min(1, ScrollTrigger.positionInViewport(this.el, 'top')),
           0
@@ -916,13 +945,19 @@ while (i < projects.length) {
             Math.min(1, ScrollTrigger.positionInViewport(this.el, 'bottom')),
             0
           ))
-      this.smoothScrollProgress +=
-        (this.scrollProgress - this.smoothScrollProgress) * 0.1
 
-      this.el.style.setProperty(
-        '--scroll-progress',
-        String(this.scrollProgress)
-      )
+      const rScrollProgress = Math.round(scrollProgress * 10000) / 10000
+
+      this.scrollProgress = scrollProgress
+
+      if (rScrollProgress !== last.scrollProgress) {
+        last.scrollProgress = rScrollProgress
+
+        this.el.style.setProperty(
+          '--scroll-progress',
+          String(this.scrollProgress)
+        )
+      }
 
       // Movement
       this.movePoints()

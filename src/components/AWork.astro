@@ -40,6 +40,8 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     video: HTMLVideoElement
 
     isPlaying: boolean
+    playPromise: Promise<void> | null
+    playGeneration: number
 
     /**
      * Init
@@ -51,6 +53,8 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
 
       // Properties
       this.isPlaying = false
+      this.playPromise = null
+      this.playGeneration = 0
 
       // Events
       this.link.addEventListener('click', this.onClick.bind(this))
@@ -63,12 +67,14 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
       if (name === 'progress') {
         this.style.setProperty('--progress', newValue)
 
-        if (newValue === '1' || newValue === '-1') {
-          if (this.isPlaying) {
+        const isOutOfView = Math.abs(parseFloat(newValue)) >= 0.98
+
+        if (isOutOfView) {
+          if (this.classList.contains('is-inview')) {
             this.outView()
           }
         } else {
-          if (!this.isPlaying) {
+          if (!this.classList.contains('is-inview')) {
             this.inView()
           }
         }
@@ -76,23 +82,95 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     }
 
     /**
+     * Loads the video source if it hasn't been loaded yet.
+     *
+     * Only the first few works are eagerly loaded by SWork on intersect;
+     * the rest load lazily here, the first time they scroll into view.
+     */
+    loadVideo() {
+      if (
+        this.video.classList.contains('is-loaded') ||
+        this.video.getAttribute('src')
+      ) {
+        return
+      }
+
+      this.video.setAttribute('src', this.video.getAttribute('data-src'))
+      this.video.load()
+
+      this.video.addEventListener(
+        'canplaythrough',
+        () => {
+          this.video.classList.add('is-loaded')
+        },
+        { once: true }
+      )
+    }
+
+    /**
      * Gets in view
      */
     inView() {
-      this.video.play()
-      this.isPlaying = true
-
       this.classList.add('is-inview')
+
+      if (!this.video.classList.contains('is-loaded')) {
+        this.loadVideo()
+      }
+
+      this.playGeneration++
+
+      this.playPromise = this.video.play()
+
+      if (this.playPromise && typeof this.playPromise.then === 'function') {
+        this.playPromise
+          .then(() => {
+            this.isPlaying = true
+          })
+          .catch(() => {
+            // Autoplay blocked, or the play() request was interrupted
+            // (e.g. by a pause()) — leave isPlaying false so a later
+            // inView() call retries.
+            this.isPlaying = false
+          })
+          .finally(() => {
+            this.playPromise = null
+          })
+      } else {
+        this.isPlaying = true
+      }
     }
 
     /**
      * Gets out view
      */
     outView() {
-      this.video.pause()
-      this.isPlaying = false
-
       this.classList.remove('is-inview')
+
+      if (this.playPromise) {
+        // Wait for the pending play() to settle before pausing, so we don't
+        // interrupt it and trigger an AbortError.
+        const generation = this.playGeneration
+
+        this.playPromise
+          .catch(() => {})
+          .finally(() => {
+            // A later inView() may have started a new play() while we were
+            // waiting on this one — if so, or if we're back in view, don't
+            // pause the newer playback.
+            if (
+              this.playGeneration !== generation ||
+              this.classList.contains('is-inview')
+            ) {
+              return
+            }
+
+            this.video.pause()
+            this.isPlaying = false
+          })
+      } else {
+        this.video.pause()
+        this.isPlaying = false
+      }
     }
 
     /**

@@ -19,6 +19,8 @@
 
     isDragging: boolean
 
+    scrollHeight: number
+
     /**
      * Contructor
      */
@@ -40,7 +42,16 @@
       // Init
       document.documentElement.classList.add('has-scrollbar')
 
+      this.updateScrollHeight()
+
       this.bindEvents()
+    }
+
+    /**
+     * Update cached scroll height
+     */
+    updateScrollHeight() {
+      this.scrollHeight = document.body.scrollHeight
     }
 
     /**
@@ -49,9 +60,12 @@
     bindEvents() {
       const { thumb } = this
 
+      Emitter.on('resize', this.updateScrollHeight, this)
       Emitter.on('resize', this.setScrollbar, this)
       Emitter.on('scroll', this.setScrollbar, this)
+      Emitter.on('siteLoaded', this.updateScrollHeight, this, true)
       Emitter.on('siteLoaded', this.setScrollbar, this, true)
+      Emitter.on('updateViewport', this.updateScrollHeight, this, true)
       Emitter.on('updateViewport', this.setScrollbar, this, true)
 
       // Drag start event
@@ -84,7 +98,7 @@
      */
     setScrollbar() {
       const scrollbarHeight =
-        (window.safeHeight / document.body.scrollHeight) * window.safeHeight
+        (window.safeHeight / this.scrollHeight) * window.safeHeight
       const scrollbarTop =
         window.scrollProgress * (window.safeHeight - scrollbarHeight)
 

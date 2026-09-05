@@ -148,7 +148,7 @@ const lines = [
       speed: number
       strength: number
       state: string
-      timeout: number
+      timeout: ReturnType<typeof setTimeout> | null
     }
 
     buttonIsHovered: boolean
@@ -188,7 +188,7 @@ const lines = [
         speed: window.safeWidth > 767 ? 15 : 10,
         strength: window.safeWidth > 767 ? 1 : 0.35,
         state: 'paused',
-        timeout: 0,
+        timeout: null,
       }
 
       this.buttonIsHovered = false
