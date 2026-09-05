@@ -49,6 +49,7 @@ import ASeparator from './ASeparator.astro'
     isPaused: boolean
     isWaiting: boolean
     st: SplitText
+    splitReady: Promise<void>
 
     /**
      * Constructor
@@ -70,6 +71,14 @@ import ASeparator from './ASeparator.astro'
       this.isPaused = true
       this.isWaiting = true
 
+      // Kick off the char split immediately so it has the whole load
+      // window to resolve. The 'intro' handler awaits this promise
+      // instead of assuming it's done by the time the fixed-delay
+      // 'intro' event fires — otherwise a slow font load means
+      // splitWords() hasn't run yet, intro() finds no .char__inner,
+      // and the per-char stagger silently no-ops.
+      this.splitReady = this.splitWords()
+
       // Init — do not wait for the full page (siteLoaded/window "load",
       // which is gated on every asset incl. work-section videos). The
       // intro reveal only needs this listener attached before the
@@ -82,8 +91,6 @@ import ASeparator from './ASeparator.astro'
      * Init
      */
     init() {
-      this.splitWords()
-
       this.bindEvents()
     }
 
@@ -93,7 +100,9 @@ import ASeparator from './ASeparator.astro'
     bindEvents() {
       Emitter.on('resize', this.onResize, this)
 
-      document.addEventListener('intro', this.intro.bind(this), { once: true })
+      document.addEventListener('intro', this.onIntro.bind(this), {
+        once: true,
+      })
 
       this.el.addEventListener('intersect', this.onIntersect.bind(this), {
         passive: true,
@@ -120,6 +129,16 @@ import ASeparator from './ASeparator.astro'
      */
     onResize() {
       this.splitWords()
+    }
+
+    /**
+     * Intro handler — waits for the char split (fonts + SplitText) to
+     * be ready before building the reveal timeline, since a slow font
+     * load can otherwise leave it unresolved when the fixed-delay
+     * 'intro' event fires.
+     */
+    onIntro() {
+      this.splitReady.then(() => this.intro())
     }
 
     /**
@@ -261,7 +280,7 @@ import ASeparator from './ASeparator.astro'
       // Wait for the real fonts so SplitText measures final metrics
       // instead of the fallback font (avoids "SplitText called before
       // fonts loaded" and mismatched char widths on swap).
-      document.fonts.ready.then(() => {
+      return document.fonts.ready.then(() => {
         this.st = new SplitText(this.words, {
           type: 'words,chars',
           charsClass: 'char',

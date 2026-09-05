@@ -39,7 +39,7 @@
     "id": "F7",
     "title": "Repository hygiene",
     "done_when": "node_modules, .astro, dist, .DS_Store untracked and ignored; git ls-files | wc -l < 200; working tree clean after commit",
-    "passes": false
+    "passes": true
   },
   {
     "id": "F8",

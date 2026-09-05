@@ -301,11 +301,21 @@ while (i < projects.length) {
      * Init
      */
     init() {
+      // Register the cheap listeners right away — in particular the
+      // 'intersect' listener, since index.astro's IntersectionObserver
+      // can deliver its initial notification for this section before a
+      // deferred bindEvents() would have attached it, permanently
+      // missing the load-videos/start-ticking kickoff for a section
+      // that's already in the viewport on load.
+      this.bindEvents()
+
       // setPoints()/setLetters() build the canvas point grid and ghost
       // letters — not needed for first paint since this section is
       // below the fold. Defer to idle time (with a timeout fallback) so
       // this heavy synchronous work doesn't compete with the hero's
-      // paint/intro on the main thread.
+      // paint/intro on the main thread. tick() guards on this.tl so it
+      // no-ops if it runs (via the 'tick' listener from onIntersect)
+      // before this finishes.
       const run = () => {
         this.setCtxStyle()
         this.setSize()
@@ -315,7 +325,13 @@ while (i < projects.length) {
         this.setWorks()
         this.setTimeline()
 
-        this.bindEvents()
+        // The heavy state onIntersect/tick depend on now exists.
+        // Replay the current intersection state in case it was
+        // already delivered (and handled as a no-op) while this setup
+        // was pending, so a section already in view starts as normal.
+        this.onIntersect({
+          detail: { isIntersecting: this.el.classList.contains('is-in-view') },
+        })
       }
 
       if ('requestIdleCallback' in window) {
@@ -944,6 +960,12 @@ while (i < projects.length) {
      * Tick
      */
     tick() {
+      // The deferred heavy setup (setPoints/setLetters/setMask/setWorks/
+      // setTimeline) may not have run yet if onIntersect's 'tick'
+      // subscription fires early — bail until it has, since movePoints/
+      // moveLetters/drawPoints all rely on that state.
+      if (!this.tl) return
+
       const { last } = this
 
       // Calculate scroll progress
