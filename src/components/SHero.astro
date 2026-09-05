@@ -13,7 +13,7 @@ import ASeparator from './ASeparator.astro'
     />
 
     <h1 class="s__title">
-      <span class="s__title__word js-word">Creative</span>
+      <span class="s__title__word js-word" role={'text' as any}>Creative</span>
       <img
         class="s__title__asset js-star"
         src="/images/asset-star.svg"
@@ -21,7 +21,7 @@ import ASeparator from './ASeparator.astro'
         width="48"
         height="48"
       />
-      <span class="s__title__word js-word">Developer</span>
+      <span class="s__title__word js-word" role={'text' as any}>Developer</span>
     </h1>
 
     <ASeparator
@@ -250,24 +250,29 @@ import ASeparator from './ASeparator.astro'
         this.st.revert()
       }
 
-      this.st = new SplitText(this.words, {
-        type: 'words,chars',
-        charsClass: 'char',
-        wordsClass: 'word',
-      })
+      // Wait for the real fonts so SplitText measures final metrics
+      // instead of the fallback font (avoids "SplitText called before
+      // fonts loaded" and mismatched char widths on swap).
+      document.fonts.ready.then(() => {
+        this.st = new SplitText(this.words, {
+          type: 'words,chars',
+          charsClass: 'char',
+          wordsClass: 'word',
+        })
 
-      this.st.chars.forEach((char: HTMLElement, index) => {
-        const letter = char.textContent
+        this.st.chars.forEach((char: HTMLElement, index) => {
+          const letter = char.textContent
 
-        char.classList.add('char--' + letter)
+          char.classList.add('char--' + letter)
 
-        const inner = document.createElement('span')
-        inner.classList.add('char__inner')
+          const inner = document.createElement('span')
+          inner.classList.add('char__inner')
 
-        inner.dataset.letter = letter.toUpperCase()
-        inner.innerHTML = letter
+          inner.dataset.letter = letter.toUpperCase()
+          inner.innerHTML = letter
 
-        char.innerHTML = inner.outerHTML
+          char.innerHTML = inner.outerHTML
+        })
       })
     }
 
@@ -275,7 +280,7 @@ import ASeparator from './ASeparator.astro'
      * Animate char
      */
     animateChar() {
-      if (this.isWaiting || Math.random() > 0.01) return
+      if (this.isWaiting || !this.st || Math.random() > 0.01) return
 
       const char =
         this.st.chars[Math.floor(Math.random() * this.st.chars.length)]
