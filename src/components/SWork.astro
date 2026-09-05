@@ -623,16 +623,27 @@ while (i < projects.length) {
 
           scene.appendChild(el)
 
+          const iy = ((j + 1) / (letters.length + 1) - 0.5) * 2
+
           const ghost = {
             el,
             x: letter.left,
             y: letter.top,
             z: Math.random() * 100,
             i: i - letter.total * 0.5,
+            iy,
             p: (i / letter.total - 0.5) * 2,
             ap: Math.abs(i / letter.total - 0.5) * 2,
             mx: 0,
             my: 0,
+            // Cached by applyGhostTransform()/moveLetters() so the
+            // transform can be recomputed from whichever one of
+            // {--state, --progress} changed without re-deriving both.
+            progress: 0.5,
+            // quickSetter for the transform this ghost's rule used to
+            // resolve via var(--head)/var(--state) — see
+            // Section.applyGhostTransform().
+            setTransform: gsap.quickSetter(el, 'transform'),
           }
 
           el.style.top = ghost.y + 'px'
@@ -641,15 +652,23 @@ while (i < projects.length) {
           el.style.zIndex = String(j !== 1 && j !== 2 && (j + letters.length + i) % 5 === 0 ? 3 : 1)
 
           el.style.setProperty('--ix', String(ghost.i))
-          el.style.setProperty(
-            '--iy',
-            String(((j + 1) / (letters.length + 1) - 0.5) * 2)
-          )
+          el.style.setProperty('--iy', String(iy))
 
           el.style.setProperty('--ap', String(ghost.ap))
           el.style.setProperty('--p', String(ghost.p))
 
+          // --progress still has to be written per-ghost: it feeds
+          // --head/--ahead, which the ::before shadow's opacity/transform/
+          // transform-origin (a pseudo-element — unreachable from JS) read
+          // via CSS var(). Written here so the shadow's initial paint
+          // matches the transform set by applyGhostTransform() below.
+          el.style.setProperty('--progress', String(ghost.progress))
+
           letter.ghosts.push(ghost)
+
+          // Match the initial transform to this.state (0 before the
+          // section has scrolled) instead of leaving it unset.
+          this.applyGhostTransform(ghost)
         }
       })
     }
@@ -696,7 +715,7 @@ while (i < projects.length) {
           scrub: 1,
         },
         onUpdate: () => {
-          scene.style.setProperty('--state', String(this.state))
+          this.updateSceneState()
         },
       })
 
@@ -937,7 +956,74 @@ while (i < projects.length) {
               0.7 -
             0.15
 
+          ghost.progress = progress
+
+          // Still required: feeds --head/--ahead, read by the ::before
+          // shadow (opacity/transform/transform-origin) — a pseudo-element
+          // has no DOM node a quickSetter can target, so this custom
+          // property write can't be replaced with an inline style. It's
+          // already scoped to this one ghost span though (not a root), so
+          // it only invalidates this span + its own ::before.
           ghost.el.style.setProperty('--progress', String(progress))
+
+          this.applyGhostTransform(ghost)
+        })
+      })
+    }
+
+    /**
+     * Apply ghost letter transform
+     *
+     * Transcribed from `.s__scene__letter`'s (non-::before) transform,
+     * which used to resolve var(--head)/var(--state)/var(--iy) via CSS.
+     * Called whenever either input changes: from moveLetters() (progress)
+     * and from the timeline's onUpdate (state) — see setTimeline().
+     */
+    applyGhostTransform(ghost) {
+      const { state } = this
+      const progress = ghost.progress
+
+      // --head: calc((var(--progress) - 0.5) * -2);
+      const head = (progress - 0.5) * -2
+      // --ahead: calc(var(--head) * var(--head));
+      const ahead = head * head
+
+      // transform: rotateY(calc(var(--head) * -10deg * var(--state)))
+      //   translate3d(
+      //     calc(var(--head) * 50vw * var(--state)),
+      //     calc(var(--iy) * 50% * var(--ahead) * var(--state)),
+      //     0
+      //   );
+      const rotateYDeg = head * -10 * state
+      const translateXvw = head * 50 * state
+      const translateYpct = ghost.iy * 50 * ahead * state
+
+      ghost.setTransform(
+        `rotateY(${rotateYDeg}deg) translate3d(${translateXvw}vw, ${translateYpct}%, 0)`
+      )
+    }
+
+    /**
+     * Update scene state
+     *
+     * --state used to be written once on `.s__scene` — an ancestor of
+     * every ghost letter *and* all 45 <a-work> elements — so every write
+     * invalidated the style of that entire subtree. Its only consumers
+     * are the ghost letters (.s__scene__letter's transform and its
+     * ::before shadow), so the write is scoped down to just the ghost
+     * spans instead. --state itself still has to stay a custom property
+     * (rather than move fully into applyGhostTransform()'s inline
+     * transform) because the ::before shadow's opacity/transform/
+     * transform-origin read it via var() and a pseudo-element has no DOM
+     * node a quickSetter can target.
+     */
+    updateSceneState() {
+      const { letters, state } = this
+
+      letters.forEach((letter) => {
+        letter.ghosts.forEach((ghost) => {
+          ghost.el.style.setProperty('--state', String(state))
+          this.applyGhostTransform(ghost)
         })
       })
     }
@@ -1359,12 +1445,8 @@ while (i < projects.length) {
 
         display: block;
 
-        transform: rotateY(calc(var(--head) * -10deg * var(--state)))
-          translate3d(
-            calc(var(--head) * 50vw * var(--state)),
-            calc(var(--iy) * 50% * var(--ahead) * var(--state)),
-            0
-          );
+        // transform driven from JS — see Section.applyGhostTransform() in
+        // the script above.
 
         pointer-events: none;
 
