@@ -530,14 +530,26 @@ import '../styles/global.scss'
       border-color: map.get($theme-colors, 'default', 'secondary');
       border-style: solid;
       border-width: 0 1rem 0 0;
-      mix-blend-mode: darken;
       transform: translate3d(-100%, 0, 0);
 
+      display: none;
       pointer-events: none;
-      will-change: transform;
 
       @include mq(phone) {
         border-right-width: 0.5rem;
+      }
+
+      // `mix-blend-mode` forces the browser to rasterize this fixed,
+      // full-viewport element and everything under it into one isolated
+      // group for as long as the rule applies — even while the element
+      // sits translated fully off-screen at rest. It's only needed for
+      // the ~1s wipe transition SiteHead's toggleContrast() runs, so it
+      // (and the element itself, via `display`) are only turned on for
+      // that transition instead of for the page's entire lifetime.
+      &.is-transitioning {
+        display: block;
+        mix-blend-mode: darken;
+        will-change: transform;
       }
     }
 
