@@ -355,6 +355,28 @@ const menu = [
       // `.is-transitioning` in index.astro.
       this.contrastMask.classList.add('is-transitioning')
 
+      // Shared by onComplete and onInterrupt so a killed tween (e.g. the
+      // toggle firing again mid-wipe) still lands on the correct final
+      // theme state instead of leaving the mask mounted mid-wipe with
+      // `mix-blend-mode` on.
+      const finishContrastToggle = () => {
+        this.contrastMask.style.transform = ''
+        this.contrastMask.classList.remove('is-transitioning')
+
+        if (toX === '0') {
+          document.documentElement.classList.remove('theme-contrasted')
+        } else {
+          document.documentElement.classList.add('theme-contrasted')
+        }
+
+        Emitter.emit(
+          'contrastchange',
+          document.documentElement.classList.contains('theme-contrasted')
+            ? 'contrasted'
+            : 'default'
+        )
+      }
+
       gsap.fromTo(
         this.contrastMask,
         {
@@ -364,23 +386,8 @@ const menu = [
           x: toX,
           duration: 1,
           ease: 'expo.inOut',
-          onComplete: () => {
-            this.contrastMask.style.transform = ''
-            this.contrastMask.classList.remove('is-transitioning')
-
-            if (toX === '0') {
-              document.documentElement.classList.remove('theme-contrasted')
-            } else {
-              document.documentElement.classList.add('theme-contrasted')
-            }
-
-            Emitter.emit(
-              'contrastchange',
-              document.documentElement.classList.contains('theme-contrasted')
-                ? 'contrasted'
-                : 'default'
-            )
-          },
+          onComplete: finishContrastToggle,
+          onInterrupt: finishContrastToggle,
         }
       )
 

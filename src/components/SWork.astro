@@ -217,6 +217,7 @@ while (i < projects.length) {
     works: any[]
     points: any[]
     pointsGap: number
+    pointColor: string
 
     tl: gsap.core.Timeline
     animationProgress: number
@@ -414,9 +415,12 @@ while (i < projects.length) {
         '--color-primary'
       )
 
+      // Stored so renderStaticPoints() can re-apply it after resizing the
+      // offscreen canvas, which resets all 2D context state (see below).
+      this.pointColor = color
+
       Ticker.nextTick(() => {
         this.ctx.fillStyle = color
-        this.staticCtx.fillStyle = color
         this.renderStaticPoints()
       })
     }
@@ -952,19 +956,30 @@ while (i < projects.length) {
      * into the offscreen canvas once, instead of every frame.
      */
     renderStaticPoints() {
-      const { bounding, points, staticCanvas, staticCtx } = this
+      const { bounding, points, pointsGap, staticCanvas, staticCtx } = this
 
       if (!staticCtx || !points.length) return
 
-      staticCanvas.width = bounding.width
-      staticCanvas.height = bounding.height
+      // Pad the buffer by one pointsGap on every side so the point field
+      // (drawn with the same ~10% overscan setPoints() uses) fully covers
+      // the region drawPoints() blits from, even at the largest flow
+      // offset — otherwise the trailing edge goes blank after a shift.
+      const padding = pointsGap
 
-      staticCtx.clearRect(0, 0, bounding.width, bounding.height)
+      staticCanvas.width = bounding.width + padding * 2
+      staticCanvas.height = bounding.height + padding * 2
+
+      // Assigning canvas width/height above resets all 2D context state
+      // (including fillStyle), so it must be (re-)applied after, not
+      // before, or the pre-rendered dots always paint black.
+      staticCtx.fillStyle = this.pointColor
+
+      staticCtx.clearRect(0, 0, staticCanvas.width, staticCanvas.height)
 
       staticCtx.beginPath()
 
       points.forEach((point) => {
-        staticCtx.rect(point.x, point.y, 0.5, 0.5)
+        staticCtx.rect(point.x + padding, point.y + padding, 0.5, 0.5)
       })
 
       staticCtx.fill()
@@ -996,6 +1011,7 @@ while (i < projects.length) {
         bounding,
         ctx,
         points,
+        pointsGap,
         staticCanvas,
         animationProgress,
         pointsProgress,
@@ -1018,8 +1034,11 @@ while (i < projects.length) {
         // pre-rendered dot field, translated by the current flow offset,
         // instead of re-issuing a rect() per point every frame.
         const flowX = points.length ? points[0].flowX : 0
+        // Undo the padding renderStaticPoints() baked into the buffer so
+        // the field lines back up with the per-point path's coordinates.
+        const padding = pointsGap
 
-        ctx.drawImage(staticCanvas, flowX, 0)
+        ctx.drawImage(staticCanvas, flowX - padding, -padding)
       } else {
         // Mid entrance/exit transition: points are pulled toward/away
         // from the center by pointsProgress, which the static field
