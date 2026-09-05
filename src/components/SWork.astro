@@ -325,6 +325,7 @@ while (i < projects.length) {
       this.points = []
 
       this.scrollProgress = 0
+      this.state = 0
       this.last = {
         animationProgress: 0,
         pointsProgress: 0,
@@ -414,6 +415,13 @@ while (i < projects.length) {
         this.setPoints()
         this.setLetters()
         this.setWorks()
+        // Re-apply transforms on work elements after --y/--size are re-randomized
+        this.works.forEach((work) => {
+          const { el } = work
+          if (typeof el.refreshTransform === 'function') {
+            el.refreshTransform()
+          }
+        })
         this.setTimeline()
 
         // The phone/desktop branch in applyScrollProgress() depends on

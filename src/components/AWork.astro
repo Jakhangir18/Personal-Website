@@ -102,6 +102,17 @@ const key = Math.random().toString(36).slice(2, 6) + '-' + index + '/' + total
     }
 
     /**
+     * Refresh transform
+     *
+     * Re-applies the transform from the current progress attribute,
+     * reading the latest --y/--size values that may have changed on resize.
+     */
+    refreshTransform() {
+      const progress = parseFloat(this.getAttribute('progress')) || 0
+      this.setTransform(this.computeTransform(progress))
+    }
+
+    /**
      * Compute transform
      *
      * Transcribed from `.s__scene__work`'s transform (SWork.astro), which
