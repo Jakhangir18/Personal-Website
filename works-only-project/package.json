@@ -15,5 +15,9 @@
     "gsap": "^3.13.0",
     "modern-normalize": "^3.0.1",
     "sass": "^1.89.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^5.9.3"
   }
 }

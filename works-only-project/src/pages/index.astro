@@ -93,10 +93,10 @@ import '../styles/global.scss'
         resizeThrottle: null,
       }
 
-      windowWidth: number
-      windowHeight: number
-      clientWidth: number
-      clientHeight: number
+      windowWidth!: number
+      windowHeight!: number
+      clientWidth!: number
+      clientHeight!: number
 
       isScrolling: boolean = false
 
@@ -280,7 +280,8 @@ import '../styles/global.scss'
        * Intro
        */
       intro() {
-        const wrapper: HTMLElement = document.querySelector('.js-site-wrapper')
+        const wrapper = document.querySelector<HTMLElement>('.js-site-wrapper')
+        if (!wrapper) return
 
         gsap.to(wrapper, {
           opacity: 1,
