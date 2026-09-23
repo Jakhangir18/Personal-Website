@@ -55,6 +55,34 @@ layout is responsive.
 5. **Deploy.** Decide GitHub Pages (same pattern as the club site, free) or
    Vercel, then add the workflow and a custom domain if he wants one.
 
+## Content pass done in this branch (2026-09-23, overnight)
+
+The template's identity is out of the built page — `dist/index.html` no longer
+contains "Antoine", "Wodniack", "Awwwards", "Webby" or "France":
+
+- Header: "Building from Corvallis, Oregon." and "Open to a Summer 2027
+  internship → Email me" pointing at `tynshimj@oregonstate.edu`; socials now go to
+  `github.com/Jakhangir18` and `linkedin.com/in/tynshimov`; the QR code in the
+  corner was regenerated and encodes his LinkedIn instead of the template
+  author's contact.
+- Hero: the letter separator spells **Jakhangir Tynshimov**.
+- About: four paragraphs in his own voice — OSU, the work at Automated Monitoring
+  Solutions, co-leading GDG on Campus, and what he is looking for.
+- The **Awards** block is now **Highlights**, carrying only things with a source:
+  GDG on Campus Co-President, CS Applied Option at Oregon State, URSA Engage
+  research 2026, the AMS role, the club website rebuild, Rowerlab, Eco-Chain.
+- Page title and description are his.
+
+Still template, still to do:
+
+1. **The logo is the template author's "NW" monogram** in `SiteHead.astro`. It
+   needs his own mark; a bad hand-made one would be worse, so it was left alone.
+2. **The work section is still four dummy videos.** It needs captures of the club
+   website, the father's portal, the agent work and one hackathon project.
+3. **No `prefers-reduced-motion` path** and no resume PDF in `public/`.
+4. The page carries `<meta name="robots" content="noindex, nofollow">`, so nothing
+   is indexed while this is half-finished. Remove that line on the day it ships.
+
 ## Repository hygiene, done in this branch
 
 `node_modules` (168 MB, 10 236 files) and `.astro` were committed in the first

@@ -1,22 +1,17 @@
 ---
-// Awards are nice, but they’re not the goal.
-// Focus on building quality websites, enjoying the process, and making your clients happy—that’s what really matters.
-// Some amazing sites never win anything, while mediocre ones sometimes do. Awards are a niche, not a universal measure of value.
-// Stay sharp, stay honest, and keep having fun.
-const awards = {
+// Everything listed here has a source: the chapter page on gdg.community.dev,
+// the club repository, or his own resume. Nothing here is a placeholder.
+const highlights = {
   counters: {
-    awwwards: ['SOTD x 16', 'Honors x 1'],
-    fwa: ['SOTD x 4', 'MOTD x 2'],
-    cssda: ['WOTD x 18', 'WOTM x 1'],
+    'GDG on Campus': ['Co-President, 2026'],
+    'Oregon State': ['CS Applied Option'],
+    'URSA Engage': ['Research, 2026'],
   },
   texts: {
-    webby2025: '2025 Webby Awards Winner <br/>Best Home Page',
-    commArt2017: 'Comm Arts Mag Interactive  Annual Competition Winner 2017',
-    netMag2016: 'Net Mag SOTM Summer 2016',
-    gsapOct2024: 'GSAP SOTM October 2024',
-    gsapNov2024: 'GSAP SOTM November 2024',
-    CSSDA2016: 'CSSDA Best Front-End <br/>Developer 2016',
-    CSSDA2015: 'CSSDA Best Front-End <br/>Developer 2015',
+    ams: 'Full-stack developer at Automated <br/>Monitoring Solutions, 2024-2025',
+    clubSite: 'Rebuilt gdgc-osu.com, the OSU <br/>GDG chapter website',
+    rowerlab: 'Web and data analytics, <br/>Rowerlab, Warsaw',
+    ecoChain: 'Eco-Chain: token incentives <br/>for city clean-ups',
   },
 }
 ---
@@ -28,33 +23,39 @@ const awards = {
 
       <div class="s__content">
         <p>
-         Curiosity and the drive to learn are the most valuable skills for any creative developer. That hunger to understand how things work, to find clever workarounds, and to constantly push boundaries—that’s what makes this craft so rewarding.
+          I am a computer science student at Oregon State, in Corvallis. I build
+          things that sit between hardware and software: sensor rigs that report
+          to a dashboard, agents that do real work unattended, and web apps that
+          people outside a classroom actually use.
         </p>
 
         <p>
-          Over the years, I’ve learned more from studying other people’s code than from any course or tutorial. Digging through Codrops experiments, exploring CodePen creations, and analyzing real-world projects—that’s how I leveled up. And it’s still part of my daily routine.
+          Most of what I know came from shipping. At Automated Monitoring
+          Solutions I built a full-stack platform around Raspberry Pi devices
+          streaming sensor data, and learned that the hard part is never the demo
+          — it is the week after, when someone else depends on it.
         </p>
 
         <p>
-          This portfolio brought me more recognition than I ever expected. What started as a quiet relaunch of my digital presence ended up winning a Webby Award. Now it’s time to give back.
+          I co-lead GDG on Campus at Oregon State. That means workshops, build
+          nights, and getting students into rooms they would not have walked into
+          on their own. I rebuilt the chapter's website this term.
         </p>
 
         <p>
-          I’m open-sourcing this site to share the knowledge behind it. If you’re a junior developer, I hope it helps you learn faster, build smarter, and gain confidence in your own journey.
-        </p>
-
-        <p>
-          If you’re tempted to copy/paste it and make it yours as-is—don’t. The community will call you out, and you’ll doom yourself to eternal mediocrity.
+          Right now I am looking for a software engineering internship for summer
+          2027, and spending my own time on research and on agents that can be
+          trusted to run overnight.
         </p>
       </div><!-- .s__content -->
     </div><!-- .s__block -->
 
     <div class="s__block s__block--awards">
-      <h2 class="s__title">Awards</h2>
+      <h2 class="s__title">Highlights</h2>
 
       <ul class="s__awards">
         {
-          Object.entries(awards.counters).map(([award, counters]) => (
+          Object.entries(highlights.counters).map(([award, counters]) => (
             <li
               class={`s__award s__award--counter s__award--${award} js-award`}
             >
@@ -71,7 +72,7 @@ const awards = {
         }
 
         {
-          Object.entries(awards.texts).map(([award, text]) => (
+          Object.entries(highlights.texts).map(([award, text]) => (
             <li class={`s__award s__award--text s__award--${award} js-award`}>
               <span class="s__award__inner">
                 <span class="s__award__text" set:html={text} />
