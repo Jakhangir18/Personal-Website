@@ -1039,6 +1039,26 @@ const highlights = {
             grid-column: 3 / 5;
             grid-row: 3 / 4;
           }
+
+          .s__award__name {
+            font-size: 4.25rem;
+
+            @include mq(desktop-xs) {
+              font-size: 3.25rem;
+            }
+
+            @include mq(tablet-sm) {
+              font-size: 2.75rem;
+            }
+
+            @include mq(phone) {
+              font-size: 2.25rem;
+            }
+
+            @include mq(phone-sm) {
+              font-size: 2rem;
+            }
+          }
         }
 
         &--ecoChain {
