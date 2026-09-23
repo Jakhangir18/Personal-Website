@@ -21,6 +21,14 @@ if (!url || !name) {
   process.exit(2)
 }
 
+// SWork.astro reads the project key as everything before the first dash in the
+// file name, so a name containing one would point at a key that does not exist
+// and the clip would be dropped from the page without a word.
+if (name.includes('-')) {
+  console.error(`the project name may not contain a dash: ${name}`)
+  process.exit(2)
+}
+
 const works = new URL('../src/assets/works/', import.meta.url).pathname
 const taken = readdirSync(works).filter((f) => f.startsWith(`${name}-`)).length
 const out = join(works, `${name}-${taken + 1}.mp4`)

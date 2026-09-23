@@ -309,6 +309,9 @@ const ogImage = siteUrl ? new URL('/og.png', siteUrl).href : null
 
         gsap.ticker.lagSmoothing(0)
 
+        // Note for anything added later: window.lenis is optional. It does not
+        // exist for a reduced-motion visitor, so read it through a guard the way
+        // the header menu does.
         window.lenis = lenis
         this.lenis = lenis
       }
