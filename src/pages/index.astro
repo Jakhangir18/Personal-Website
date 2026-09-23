@@ -9,6 +9,12 @@ import SCTA from '../components/SCTA.astro'
 import ASeparator from '../components/ASeparator.astro'
 
 import '../styles/global.scss'
+
+// Open Graph scrapers need an absolute image URL. Build with
+// PUBLIC_SITE_URL=https://<domain> once the site has one; until then the card
+// ships without an image rather than with a broken relative one.
+const siteUrl = import.meta.env.PUBLIC_SITE_URL
+const ogImage = siteUrl ? new URL('/og.png', siteUrl).href : null
 ---
 
 <html lang="en" class="is-scroll-blocked theme-contrasted">
@@ -50,11 +56,9 @@ import '../styles/global.scss'
     <meta
       property="og:description"
       content="Co-President of GDG on Campus at Oregon State, building full-stack and hardware-adjacent software. Open to a Summer 2027 internship." />
-    <!-- Relative for now. Most scrapers want an absolute URL, so this becomes
-         https://<domain>/og.png on the day the site gets its domain. -->
-    <meta property="og:image" content="/og.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/og.png" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <link
       rel="preload"

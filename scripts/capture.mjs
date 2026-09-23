@@ -44,7 +44,15 @@ await page.waitForTimeout(500)
 await context.close()
 await browser.close()
 
-const webm = join(dir, readdirSync(dir).find((f) => f.endsWith('.webm')))
+const recorded = readdirSync(dir).find((f) => f.endsWith('.webm'))
+
+if (!recorded) {
+  rmSync(dir, { recursive: true, force: true })
+  console.error(`no video was written for ${url}; the page may have failed to load`)
+  process.exit(1)
+}
+
+const webm = join(dir, recorded)
 execFileSync('ffmpeg', [
   '-loglevel', 'error', '-y', '-i', webm,
   '-vf', 'scale=960:-2',

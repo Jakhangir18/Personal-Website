@@ -35,8 +35,9 @@ layout is responsive.
 
 1. **Identity.** Done, except the favicon, which is still the template's.
    The Open Graph card is generated into `public/og.png` in the site's own
-   fonts; its `og:image` is relative and has to become absolute once the site
-   has a domain.
+   fonts. Scrapers need an absolute image URL, so the tag is emitted only when
+   the build knows the domain: `PUBLIC_SITE_URL=https://<domain> npm run build`.
+   Without it the card ships as a plain summary rather than with a broken link.
 2. **About.** Replace the award block with what is true: Computer Science
    Applied Option at Oregon State with a physics minor, Co-President of GDG on
    Campus at OSU, what he builds and what he is looking for (Summer 2027
