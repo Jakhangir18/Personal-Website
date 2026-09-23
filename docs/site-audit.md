@@ -33,9 +33,10 @@ layout is responsive.
 
 ## What has to be written
 
-1. **Identity.** Name, one-line role, location (Corvallis, Oregon), the
-   separator letters, the tab title, a real favicon, a description, and an
-   Open Graph image.
+1. **Identity.** Done, except the favicon, which is still the template's.
+   The Open Graph card is generated into `public/og.png` in the site's own
+   fonts; its `og:image` is relative and has to become absolute once the site
+   has a domain.
 2. **About.** Replace the award block with what is true: Computer Science
    Applied Option at Oregon State with a physics minor, Co-President of GDG on
    Campus at OSU, what he builds and what he is looking for (Summer 2027
@@ -97,6 +98,13 @@ Still template, still to do:
    rebuild, not a media query.
 4. The page carries `<meta name="robots" content="noindex, nofollow">`, so nothing
    is indexed while this is half-finished. Remove that line on the day it ships.
+
+## Adding the next project clip
+
+`node scripts/capture.mjs <url> <Name>` records a scrolling clip of a page,
+encodes it with ffmpeg and writes `src/assets/works/<Name>-<n>.mp4`, which is
+the naming `SWork.astro` reads — the part before the dash is the key of the
+entry in its `info` map. That is how the two club-website clips were made.
 
 ## A test that keeps the identity out
 
