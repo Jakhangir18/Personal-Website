@@ -83,73 +83,6 @@ const highlights = {
           ))
         }
 
-        <li class="s__award s__award--blank">
-          <svg
-            width="101"
-            height="113"
-            viewBox="0 0 101 113"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M80.05 107.398c-21.944 12.67-52.875.18-69.085-27.896m69.086 27.896c21.945-12.67 26.594-45.702 10.384-73.778M80.05 107.398c-19.686 11.366-48.786-2.181-64.996-30.258C-1.155 49.063 1.663 17.09 21.35 5.723m58.702 101.675c19.686-11.366 22.504-43.34 6.293-71.417C70.134 7.904 41.034-5.642 21.35 5.723m58.702 101.675c-10.973 6.335-33.009-11.29-49.219-39.367-16.21-28.077-20.456-55.973-9.483-62.308m58.702 101.675c10.972-6.335 6.726-34.231-9.484-62.308C54.357 17.013 32.322-.612 21.35 5.723m58.702 101.675c3.74-2.159-6.262-26.77-22.456-54.818S25.089 3.564 21.349 5.723m58.702 101.675c-3.74 2.159-20.053-18.808-36.246-46.856C27.61 32.493 17.609 7.882 21.349 5.723M10.965 79.502C-5.245 51.425-.596 18.393 21.349 5.723M10.965 79.502c11.366 19.686 38.37 25.373 60.314 12.703 21.946-12.67 30.522-38.9 19.156-58.585m-79.47 45.882C-.401 59.816 8.175 33.586 30.121 20.916c21.945-12.67 48.948-6.982 60.314 12.704m-79.47 45.882c6.335 10.972 29.26 9.596 51.206-3.074C84.115 63.758 96.77 44.592 90.434 33.62m-79.47 45.882C4.63 68.529 17.285 49.363 39.23 36.693c21.945-12.67 44.87-14.046 51.205-3.073M21.349 5.723c21.945-12.67 52.876-.18 69.086 27.897M54.749 63.573C32.778 76.258 13.192 83.358 11.033 79.618c-2.16-3.74 13.783-17.15 35.754-29.836 21.97-12.685 41.557-19.785 43.716-16.045 2.159 3.74-13.783 17.15-35.754 29.836Z"
-            >
-            </path>
-          </svg>
-
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-        </li>
       </ul><!-- .s__content -->
     </div><!-- .s__block -->
   </div><!-- .s__inner -->
@@ -870,7 +803,7 @@ const highlights = {
       padding: 0;
       display: grid;
       grid-template-columns: repeat(4, calc(var(--width) / 4));
-      grid-template-rows: repeat(8, calc(var(--width) / 4 / 0.751));
+      grid-template-rows: repeat(5, calc(var(--width) / 4 / 0.751));
 
       background: repeating-linear-gradient(
         -45deg,
@@ -887,7 +820,7 @@ const highlights = {
 
       @include mq(tablet-sm) {
         grid-template-columns: repeat(4, calc(var(--width) / 4));
-        grid-template-rows: repeat(10, calc(var(--width) / 4 / 0.75));
+        grid-template-rows: repeat(5, calc(var(--width) / 4 / 0.75));
       }
 
       @at-root :global(.theme-contrasted) & {
@@ -1058,22 +991,22 @@ const highlights = {
           }
 
           .s__award__name {
-            font-size: 8.625rem;
+            font-size: 4.25rem;
 
             @include mq(desktop-xs) {
-              font-size: 6.5rem;
+              font-size: 3.25rem;
             }
 
             @include mq(tablet-sm) {
-              font-size: 5.5rem;
+              font-size: 2.75rem;
             }
 
             @include mq(phone) {
-              font-size: 4rem;
+              font-size: 2.25rem;
             }
 
             @include mq(phone-sm) {
-              font-size: 3.5rem;
+              font-size: 2rem;
             }
           }
         }
@@ -1094,112 +1027,53 @@ const highlights = {
 
           @include mq(tablet-sm) {
             grid-column: 1 / 5;
-            grid-row: 8 / 9;
-          }
-        }
-
-        &--oregonState {
-          grid-column: 4 / 5;
-          grid-row: 3 / 4;
-
-          @include mq(tablet-sm) {
-            grid-column: 3 / 6;
-            grid-row: 4 / 6;
-          }
-        }
-
-        &--ecoChain {
-          grid-column: 1 / 3;
-          grid-row: 6 / 7;
-
-          @include mq(tablet-sm) {
-            grid-column: 1 / 3;
             grid-row: 4 / 5;
           }
         }
 
-        &--ursaEngage {
-          grid-column: 2 / 4;
-          grid-row: 5 / 6;
+        &--oregonState {
+          grid-column: 3 / 5;
+          grid-row: 3 / 4;
 
           @include mq(tablet-sm) {
-            grid-column: 1 / 3;
-            grid-row: 6 / 8;
+            grid-column: 3 / 5;
+            grid-row: 3 / 4;
           }
         }
 
-        &--blank {
-          grid-column: 1 / 2;
+        &--ecoChain {
+          grid-column: 3 / 5;
           grid-row: 5 / 6;
 
           @include mq(tablet-sm) {
             grid-column: 3 / 5;
-            grid-row: 7 / 8;
+            grid-row: 5 / 6;
+          }
+        }
+
+        &--ursaEngage {
+          grid-column: 1 / 3;
+          grid-row: 5 / 6;
+
+          @include mq(tablet-sm) {
+            grid-column: 1 / 3;
+            grid-row: 5 / 6;
           }
 
-          &:after {
-            display: none;
-          }
+          .s__award__name {
+            font-size: 4.25rem;
 
-          svg {
-            position: absolute;
-
-            &:nth-child(1) {
-              top: 50%;
-              left: 50%;
-
-              width: 62.538%;
-              height: 53.1333%;
-
-              transform: translate(-50%, -50%);
-
-              path {
-                fill: none;
-                stroke: color(secondary);
-                stroke-width: 1px;
-              }
+            @include mq(desktop-xs) {
+              font-size: 3.25rem;
             }
 
-            &:nth-child(2),
-            &:nth-child(3),
-            &:nth-child(4),
-            &:nth-child(5) {
-              position: absolute;
-
-              width: 12.1203%;
-              height: auto;
-
-              path {
-                fill: color(secondary);
-                stroke: none;
-              }
+            @include mq(tablet-sm) {
+              font-size: 2.75rem;
             }
 
-            &:nth-child(2) {
-              top: 0.5rem;
-              left: 0.5rem;
+            @include mq(phone) {
+              font-size: 2.25rem;
             }
-
-            &:nth-child(3) {
-              top: 0.5rem;
-              right: 0.5rem;
-            }
-
-            &:nth-child(4) {
-              bottom: 0.5rem;
-              left: 0.5rem;
-            }
-
-            &:nth-child(5) {
-              bottom: 0.5rem;
-              right: 0.5rem;
-            }
-          }
-
-          path {
-            fill: none;
-            stroke: color(secondary);
-            stroke-width: 1px;
           }
         }
 
