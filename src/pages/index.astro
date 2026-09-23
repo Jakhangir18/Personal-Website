@@ -395,6 +395,21 @@ import '../styles/global.scss'
         const borderLeft: HTMLElement = intro.querySelector('.js-border-left')
         const borderRight: HTMLElement = intro.querySelector('.js-border-right')
 
+        // Reduced motion: no five-second curtain. Show the site at once.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          mount.style.opacity = '1'
+          intro.remove()
+
+          document.documentElement.classList.remove('is-scroll-blocked')
+          document.dispatchEvent(new CustomEvent('intro'))
+
+          Ticker.nextTick(() => {
+            Emitter.emit('updateViewport')
+          })
+
+          return
+        }
+
         // Timeline
         const tl = gsap.timeline()
 

@@ -112,6 +112,9 @@ who forks it later.
   the author's name and awards is not.
 - **Weight.** The page scrolls 27 710 px and ships several MP4s. Replace the
   dummy videos with compressed captures rather than adding more.
-- **Motion.** `prefers-reduced-motion` now skips the smooth-scroll hijack and CSS
-  animation, and marks the document with `is-reduced-motion`. The pinned,
-  scroll-driven scenes still run under the visitor's own scrolling.
+- **Motion.** `prefers-reduced-motion` now skips the five-second intro curtain,
+  the smooth-scroll hijack and every CSS animation, and marks the document with
+  `is-reduced-motion`. Verified in a reduced-motion browser context: the intro
+  element is gone and the page scrolls 1.5 s after load, while a normal visitor
+  still gets the full intro. The pinned, scroll-driven scenes still run under the
+  visitor's own scrolling.
