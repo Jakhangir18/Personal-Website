@@ -86,8 +86,9 @@ project the scene is sparse — it is built for a dozen — so the next captures
 
 Still template, still to do:
 
-1. **The logo is the template author's "NW" monogram** in `SiteHead.astro`. It
-   needs his own mark; a bad hand-made one would be worse, so it was left alone.
+1. **The logo** is now a plain geometric **JT** in the template's own bar style,
+   drawn as two paths in `SiteHead.astro`. It is a placeholder with his initials,
+   not a designed mark — replace it when he has one.
 2. **The work section holds one project.** The club website is in; the father's
    portal, the agent work and a hackathon project still need captures.
 3. **No resume PDF in `public/`.** A reduced-motion path now exists — Lenis is
