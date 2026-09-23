@@ -277,6 +277,15 @@ import '../styles/global.scss'
        * Init lenis
        */
       initLenis() {
+        // A visitor who asks for reduced motion keeps native scrolling: no
+        // smooth-scroll hijack, no inertia. ScrollTrigger reads native scroll
+        // on its own, so the sections still appear in the right order.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('is-reduced-motion')
+          gsap.ticker.lagSmoothing(0)
+          return
+        }
+
         const lenis = new Lenis()
 
         lenis.on('scroll', ScrollTrigger.update)

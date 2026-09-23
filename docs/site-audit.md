@@ -88,9 +88,12 @@ Still template, still to do:
 
 1. **The logo is the template author's "NW" monogram** in `SiteHead.astro`. It
    needs his own mark; a bad hand-made one would be worse, so it was left alone.
-2. **The work section is still four dummy videos.** It needs captures of the club
-   website, the father's portal, the agent work and one hackathon project.
-3. **No `prefers-reduced-motion` path** and no resume PDF in `public/`.
+2. **The work section holds one project.** The club website is in; the father's
+   portal, the agent work and a hackathon project still need captures.
+3. **No resume PDF in `public/`.** A reduced-motion path now exists — Lenis is
+   skipped and CSS animation is cut when the system asks for it — but the
+   scroll-driven scenes still play as they are scrolled; turning those off is a
+   rebuild, not a media query.
 4. The page carries `<meta name="robots" content="noindex, nofollow">`, so nothing
    is indexed while this is half-finished. Remove that line on the day it ships.
 
@@ -109,6 +112,6 @@ who forks it later.
   the author's name and awards is not.
 - **Weight.** The page scrolls 27 710 px and ships several MP4s. Replace the
   dummy videos with compressed captures rather than adding more.
-- **Motion.** There is no reduced-motion path; a visitor with
-  `prefers-reduced-motion` gets the full pinned scroll. Add the off-state
-  before it goes public.
+- **Motion.** `prefers-reduced-motion` now skips the smooth-scroll hijack and CSS
+  animation, and marks the document with `is-reduced-motion`. The pinned,
+  scroll-driven scenes still run under the visitor's own scrolling.
