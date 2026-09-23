@@ -390,6 +390,13 @@ const menu = [
 
       const id = e.currentTarget.getAttribute('href')
 
+      // Lenis is not started for a reduced-motion visitor, so fall back to the
+      // browser's own jump rather than throwing on an undefined window.lenis.
+      if (!window.lenis) {
+        document.querySelector(id)?.scrollIntoView({ behavior: 'auto' })
+        return
+      }
+
       window.lenis.scrollTo(id, {
         duration: 1.5,
         easing: (t) =>
