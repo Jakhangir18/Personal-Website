@@ -98,6 +98,21 @@ Still template, still to do:
 4. The page carries `<meta name="robots" content="noindex, nofollow">`, so nothing
    is indexed while this is half-finished. Remove that line on the day it ships.
 
+## A test that keeps the identity out
+
+`npm test` runs three Playwright checks against the production build:
+
+1. The built page contains none of the template author's words — Antoine,
+   Wodniack, Awwwards, Webby, "Coding globally from France", the dummy project
+   labels, the CodePen handle, `hello@example.com` — and does contain his title,
+   his location line, his GitHub, his LinkedIn and his address. This check is
+   what found `hello@example.com` still sitting in the contact section and
+   "Jack Portfolio" in the Apple web-app title after the first content pass.
+2. A reduced-motion visitor gets the page at once: no intro element, scrolling
+   released, `is-reduced-motion` set, Lenis absent, the menu still navigating,
+   and no page error.
+3. No horizontal overflow at 390px.
+
 ## Repository hygiene, done in this branch
 
 `node_modules` (168 MB, 10 236 files) and `.astro` were committed in the first
