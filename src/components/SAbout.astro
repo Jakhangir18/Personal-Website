@@ -3,9 +3,9 @@
 // the club repository, or his own resume. Nothing here is a placeholder.
 const highlights = {
   counters: {
-    'GDG on Campus': ['Co-President, 2026'],
-    'Oregon State': ['CS Applied Option'],
-    'URSA Engage': ['Research, 2026'],
+    gdgCampus: { name: 'GDG on Campus', items: ['Co-President, 2026'] },
+    oregonState: { name: 'Oregon State', items: ['CS Applied Option'] },
+    ursaEngage: { name: 'URSA Engage', items: ['Research, 2026'] },
   },
   texts: {
     ams: 'Full-stack developer at Automated <br/>Monitoring Solutions, 2024-2025',
@@ -55,13 +55,13 @@ const highlights = {
 
       <ul class="s__awards">
         {
-          Object.entries(highlights.counters).map(([award, counters]) => (
+          Object.entries(highlights.counters).map(([award, { name, items }]) => (
             <li
               class={`s__award s__award--counter s__award--${award} js-award`}
             >
               <span class="s__award__inner">
-                <span class="s__award__name">{award}</span>
-                {counters.map((counter) => (
+                <span class="s__award__name">{name}</span>
+                {items.map((counter) => (
                   <span class="s__award__counter">({counter})</span>
                 ))}
               </span>
