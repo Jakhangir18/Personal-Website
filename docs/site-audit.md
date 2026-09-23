@@ -73,6 +73,17 @@ contains "Antoine", "Wodniack", "Awwwards", "Webby" or "France":
   research 2026, the AMS role, the club website rebuild, Rowerlab, Eco-Chain.
 - Page title and description are his.
 
+Removed as well: the "My Way" section. It was the template author's own life in
+photographs — his desk setups from 2006, 2016 and 2020, his first FWA award from
+2012, his studio "Waaark" — under the giant line "remember not to steal this".
+None of it could be his, so the component and `src/assets/frames` are gone.
+
+The **work** section now shows one real project: the GDG on Campus club website,
+as two screen recordings of gdgc-osu.com captured for this branch. The ten
+"Dummy Project" entries and the template's CodePen clips are deleted. With one
+project the scene is sparse — it is built for a dozen — so the next captures
+(the father's portal, the agent work, a hackathon project) fill it out.
+
 Still template, still to do:
 
 1. **The logo is the template author's "NW" monogram** in `SiteHead.astro`. It

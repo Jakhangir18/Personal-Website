@@ -1,131 +1,25 @@
 ---
 import AWork from './AWork.astro'
-import dummyVideo from '/src/assets/works/Dummy.mp4'
 
 const videos = await Astro.glob<{ default: any }>('/src/assets/works/*.mp4')
 
-// Yeah, this should probably be in a CMS or content file.
-// But it’s my site, and editing it in code is faster than setting up yet another headless something.
-// Sometimes "quick and dirty" wins. Don’t @ me.
+// One entry per project. The key is the prefix of its video files, so
+// Gdgc-1.mp4 and Gdgc-2.mp4 both belong to the Gdgc entry.
 const info = {
-  Pen: {
-    title: 'CodePen',
-    site: 'https://codepen.io/your-username',
+  Gdgc: {
+    title: 'GDG on Campus — club website',
+    site: 'https://gdgc-osu.com/',
   },
-  Dummy1: {
-    title: 'Dummy Project 1',
-    site: 'https://example.com',
-  },
-  Dummy2: {
-    title: 'Dummy Project 2',
-    site: 'https://example.com',
-  },
-  Dummy3: {
-    title: 'Dummy Project 3',
-    site: 'https://example.com',
-  },
-  Dummy4: {
-    title: 'Dummy Project 4',
-    site: 'https://example.com',
-  },
-  Dummy5: {
-    title: 'Dummy Project 5',
-    site: 'https://example.com',
-  },
-  Dummy6: {
-    title: 'Dummy Project 6',
-    site: 'https://example.com',
-  },
-  Dummy7: {
-    title: 'Dummy Project 7',
-    site: 'https://example.com',
-  },
-  Dummy8: {
-    title: 'Dummy Project 8',
-    site: 'https://example.com',
-  },
-  Dummy9: {
-    title: 'Dummy Project 9',
-    site: 'https://example.com',
-  },
-  Dummy10: {
-    title: 'Dummy Project 10',
-    site: 'https://example.com',
-  }
 }
 
-let projects = []
-let pens = []
-
-// I removed the video loops to keep the repo lightweight.
-// But this is where I normally fetch and assign the videos for each project in the portfolio.
-videos.forEach((video, index) => {
-  const src = video.default
-
-  const key = src.split('-')[0].split('/').pop()
-  const project = info[key]
-  if (!project) return
-  const caption = project.title
-  const site = project.site
-
-  if (key === 'Pen') {
-    pens.push({
-      caption,
-      site,
-      src,
-    })
-  } else {
-    projects.push({
-      caption,
-      site,
-      src,
-    })
-  }
-})
-
-// Create dummy projects with 3 videos each
-for (let i = 1; i <= 14; i++) {
-  const key = `Dummy${i}`
-  const project = info[key]
-  if (!project) continue
-
-  for (let j = 0; j < 4; j++) {
-    projects.push({
-      caption: `${project.title} - Video ${j + 1}`,
-      site: project.site,
-      src: dummyVideo
-    })
-  }
-}
-
-function shuffle(array) {
-  let currentIndex = array.length
-
-  while (currentIndex != 0) {
-    let randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-    ;[array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ]
-  }
-}
-
-shuffle(projects)
-
-// Add pens in between projects regularly
-let works = []
-let chunkSize = Math.floor(projects.length / pens.length)
-let i = 0
-let j = 0
-while (i < projects.length) {
-  works.push(projects[i])
-  if (j < pens.length && (i + 1) % chunkSize === 0) {
-    works.push(pens[j])
-    j++
-  }
-  i++
-}
+const works = videos
+  .map((video) => {
+    const src = video.default
+    const key = src.split('/').pop().split('-')[0]
+    const project = info[key]
+    return project ? { caption: project.title, site: project.site, src } : null
+  })
+  .filter(Boolean)
 ---
 
 <section id="work" class="s-work" data-intersect>
