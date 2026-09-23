@@ -1,22 +1,17 @@
 ---
-// Awards are nice, but they’re not the goal.
-// Focus on building quality websites, enjoying the process, and making your clients happy—that’s what really matters.
-// Some amazing sites never win anything, while mediocre ones sometimes do. Awards are a niche, not a universal measure of value.
-// Stay sharp, stay honest, and keep having fun.
-const awards = {
+// Everything listed here has a source: the chapter page on gdg.community.dev,
+// the club repository, or his own resume. Nothing here is a placeholder.
+const highlights = {
   counters: {
-    awwwards: ['SOTD x 16', 'Honors x 1'],
-    fwa: ['SOTD x 4', 'MOTD x 2'],
-    cssda: ['WOTD x 18', 'WOTM x 1'],
+    gdgCampus: { name: 'GDG on Campus', items: ['Co-President, 2026'] },
+    oregonState: { name: 'Oregon State', items: ['CS Applied Option'] },
+    ursaEngage: { name: 'URSA Engage', items: ['Research, 2026'] },
   },
   texts: {
-    webby2025: '2025 Webby Awards Winner <br/>Best Home Page',
-    commArt2017: 'Comm Arts Mag Interactive  Annual Competition Winner 2017',
-    netMag2016: 'Net Mag SOTM Summer 2016',
-    gsapOct2024: 'GSAP SOTM October 2024',
-    gsapNov2024: 'GSAP SOTM November 2024',
-    CSSDA2016: 'CSSDA Best Front-End <br/>Developer 2016',
-    CSSDA2015: 'CSSDA Best Front-End <br/>Developer 2015',
+    ams: 'Full-stack developer at Automated <br/>Monitoring Solutions, 2024-2025',
+    clubSite: 'Rebuilt gdgc-osu.com, the OSU <br/>GDG chapter website',
+    rowerlab: 'Web and data analytics, <br/>Rowerlab, Warsaw',
+    ecoChain: 'Eco-Chain: token incentives <br/>for city clean-ups',
   },
 }
 ---
@@ -28,39 +23,45 @@ const awards = {
 
       <div class="s__content">
         <p>
-         Curiosity and the drive to learn are the most valuable skills for any creative developer. That hunger to understand how things work, to find clever workarounds, and to constantly push boundaries—that’s what makes this craft so rewarding.
+          I am a computer science student at Oregon State, in Corvallis. I build
+          things that sit between hardware and software: sensor rigs that report
+          to a dashboard, agents that do real work unattended, and web apps that
+          people outside a classroom actually use.
         </p>
 
         <p>
-          Over the years, I’ve learned more from studying other people’s code than from any course or tutorial. Digging through Codrops experiments, exploring CodePen creations, and analyzing real-world projects—that’s how I leveled up. And it’s still part of my daily routine.
+          Most of what I know came from shipping. At Automated Monitoring
+          Solutions I built a full-stack platform around Raspberry Pi devices
+          streaming sensor data, and learned that the hard part is never the demo
+          — it is the week after, when someone else depends on it.
         </p>
 
         <p>
-          This portfolio brought me more recognition than I ever expected. What started as a quiet relaunch of my digital presence ended up winning a Webby Award. Now it’s time to give back.
+          I co-lead GDG on Campus at Oregon State. That means workshops, build
+          nights, and getting students into rooms they would not have walked into
+          on their own. I rebuilt the chapter's website this term.
         </p>
 
         <p>
-          I’m open-sourcing this site to share the knowledge behind it. If you’re a junior developer, I hope it helps you learn faster, build smarter, and gain confidence in your own journey.
-        </p>
-
-        <p>
-          If you’re tempted to copy/paste it and make it yours as-is—don’t. The community will call you out, and you’ll doom yourself to eternal mediocrity.
+          Right now I am looking for a software engineering internship for summer
+          2027, and spending my own time on research and on agents that can be
+          trusted to run overnight.
         </p>
       </div><!-- .s__content -->
     </div><!-- .s__block -->
 
     <div class="s__block s__block--awards">
-      <h2 class="s__title">Awards</h2>
+      <h2 class="s__title">Highlights</h2>
 
       <ul class="s__awards">
         {
-          Object.entries(awards.counters).map(([award, counters]) => (
+          Object.entries(highlights.counters).map(([award, { name, items }]) => (
             <li
               class={`s__award s__award--counter s__award--${award} js-award`}
             >
               <span class="s__award__inner">
-                <span class="s__award__name">{award}</span>
-                {counters.map((counter) => (
+                <span class="s__award__name">{name}</span>
+                {items.map((counter) => (
                   <span class="s__award__counter">({counter})</span>
                 ))}
               </span>
@@ -71,7 +72,7 @@ const awards = {
         }
 
         {
-          Object.entries(awards.texts).map(([award, text]) => (
+          Object.entries(highlights.texts).map(([award, text]) => (
             <li class={`s__award s__award--text s__award--${award} js-award`}>
               <span class="s__award__inner">
                 <span class="s__award__text" set:html={text} />
@@ -82,73 +83,6 @@ const awards = {
           ))
         }
 
-        <li class="s__award s__award--blank">
-          <svg
-            width="101"
-            height="113"
-            viewBox="0 0 101 113"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M80.05 107.398c-21.944 12.67-52.875.18-69.085-27.896m69.086 27.896c21.945-12.67 26.594-45.702 10.384-73.778M80.05 107.398c-19.686 11.366-48.786-2.181-64.996-30.258C-1.155 49.063 1.663 17.09 21.35 5.723m58.702 101.675c19.686-11.366 22.504-43.34 6.293-71.417C70.134 7.904 41.034-5.642 21.35 5.723m58.702 101.675c-10.973 6.335-33.009-11.29-49.219-39.367-16.21-28.077-20.456-55.973-9.483-62.308m58.702 101.675c10.972-6.335 6.726-34.231-9.484-62.308C54.357 17.013 32.322-.612 21.35 5.723m58.702 101.675c3.74-2.159-6.262-26.77-22.456-54.818S25.089 3.564 21.349 5.723m58.702 101.675c-3.74 2.159-20.053-18.808-36.246-46.856C27.61 32.493 17.609 7.882 21.349 5.723M10.965 79.502C-5.245 51.425-.596 18.393 21.349 5.723M10.965 79.502c11.366 19.686 38.37 25.373 60.314 12.703 21.946-12.67 30.522-38.9 19.156-58.585m-79.47 45.882C-.401 59.816 8.175 33.586 30.121 20.916c21.945-12.67 48.948-6.982 60.314 12.704m-79.47 45.882c6.335 10.972 29.26 9.596 51.206-3.074C84.115 63.758 96.77 44.592 90.434 33.62m-79.47 45.882C4.63 68.529 17.285 49.363 39.23 36.693c21.945-12.67 44.87-14.046 51.205-3.073M21.349 5.723c21.945-12.67 52.876-.18 69.086 27.897M54.749 63.573C32.778 76.258 13.192 83.358 11.033 79.618c-2.16-3.74 13.783-17.15 35.754-29.836 21.97-12.685 41.557-19.785 43.716-16.045 2.159 3.74-13.783 17.15-35.754 29.836Z"
-            >
-            </path>
-          </svg>
-
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-          <svg
-            width="49"
-            height="49"
-            viewBox="0 0 49 49"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#160000"
-              d="m24.5 0 3.3 21.2L49 24.5l-21.2 3.3L24.5 49l-3.3-21.2L0 24.5l21.2-3.3L24.5 0z"
-            >
-            </path>
-          </svg>
-        </li>
       </ul><!-- .s__content -->
     </div><!-- .s__block -->
   </div><!-- .s__inner -->
@@ -869,7 +803,7 @@ const awards = {
       padding: 0;
       display: grid;
       grid-template-columns: repeat(4, calc(var(--width) / 4));
-      grid-template-rows: repeat(8, calc(var(--width) / 4 / 0.751));
+      grid-template-rows: repeat(5, calc(var(--width) / 4 / 0.751));
 
       background: repeating-linear-gradient(
         -45deg,
@@ -886,7 +820,7 @@ const awards = {
 
       @include mq(tablet-sm) {
         grid-template-columns: repeat(4, calc(var(--width) / 4));
-        grid-template-rows: repeat(10, calc(var(--width) / 4 / 0.75));
+        grid-template-rows: repeat(5, calc(var(--width) / 4 / 0.75));
       }
 
       @at-root :global(.theme-contrasted) & {
@@ -1042,12 +976,12 @@ const awards = {
           }
         }
 
-        &--webby2025 {
+        &--ams {
           grid-column: 1 / 5;
           grid-row: 1 / 2;
         }
 
-        &--awwwards {
+        &--gdgCampus {
           grid-column: 1 / 3;
           grid-row: 2 / 4;
 
@@ -1057,27 +991,27 @@ const awards = {
           }
 
           .s__award__name {
-            font-size: 8.625rem;
+            font-size: 4.25rem;
 
             @include mq(desktop-xs) {
-              font-size: 6.5rem;
+              font-size: 3.25rem;
             }
 
             @include mq(tablet-sm) {
-              font-size: 5.5rem;
+              font-size: 2.75rem;
             }
 
             @include mq(phone) {
-              font-size: 4rem;
+              font-size: 2.25rem;
             }
 
             @include mq(phone-sm) {
-              font-size: 3.5rem;
+              font-size: 2rem;
             }
           }
         }
 
-      &--netMag2016 {
+      &--rowerlab {
         grid-column: 3 / 5;
         grid-row: 2 / 3;
 
@@ -1087,152 +1021,79 @@ const awards = {
         }
       }
 
-        &--commArt2017 {
+        &--clubSite {
           grid-column: 1 / 5;
           grid-row: 4 / 5;
 
           @include mq(tablet-sm) {
             grid-column: 1 / 5;
-            grid-row: 8 / 9;
-          }
-        }
-
-        &--fwa {
-          grid-column: 4 / 5;
-          grid-row: 3 / 4;
-
-          @include mq(tablet-sm) {
-            grid-column: 3 / 6;
-            grid-row: 4 / 6;
-          }
-        }
-
-        &--gsapOct2024 {
-          grid-column: 1 / 3;
-          grid-row: 6 / 7;
-
-          @include mq(tablet-sm) {
-            grid-column: 1 / 3;
             grid-row: 4 / 5;
           }
         }
 
-        &--gsapNov2024 {
+        &--oregonState {
           grid-column: 3 / 5;
-          grid-row: 6 / 7;
+          grid-row: 3 / 4;
 
           @include mq(tablet-sm) {
             grid-column: 3 / 5;
-            grid-row: 6 / 7;
+            grid-row: 3 / 4;
+          }
+
+          .s__award__name {
+            font-size: 4.25rem;
+
+            @include mq(desktop-xs) {
+              font-size: 3.25rem;
+            }
+
+            @include mq(tablet-sm) {
+              font-size: 2.75rem;
+            }
+
+            @include mq(phone) {
+              font-size: 2.25rem;
+            }
+
+            @include mq(phone-sm) {
+              font-size: 2rem;
+            }
           }
         }
 
-        &--cssda {
-          grid-column: 2 / 4;
+        &--ecoChain {
+          grid-column: 3 / 5;
+          grid-row: 5 / 6;
+
+          @include mq(tablet-sm) {
+            grid-column: 3 / 5;
+            grid-row: 5 / 6;
+          }
+        }
+
+        &--ursaEngage {
+          grid-column: 1 / 3;
           grid-row: 5 / 6;
 
           @include mq(tablet-sm) {
             grid-column: 1 / 3;
-            grid-row: 6 / 8;
-          }
-        }
-
-        &--CSSDA2016 {
-          grid-column: 2 / 5;
-          grid-row: 7 / 8;
-
-          @include mq(tablet-sm) {
-            grid-column: 1 / 4;
-            grid-row: 9 / 10;
-          }
-        }
-
-        &--CSSDA2015 {
-          grid-column: 1 / 4;
-          grid-row: 8 / 9;
-
-          @include mq(tablet-sm) {
-            grid-column: 2 / 5;
-            grid-row: 10 / 11;
+            grid-row: 5 / 6;
           }
 
-          &:before {
-            bottom: -1px;
-          }
-        }
+          .s__award__name {
+            font-size: 4.25rem;
 
-        &--blank {
-          grid-column: 1 / 2;
-          grid-row: 5 / 6;
-
-          @include mq(tablet-sm) {
-            grid-column: 3 / 5;
-            grid-row: 7 / 8;
-          }
-
-          &:after {
-            display: none;
-          }
-
-          svg {
-            position: absolute;
-
-            &:nth-child(1) {
-              top: 50%;
-              left: 50%;
-
-              width: 62.538%;
-              height: 53.1333%;
-
-              transform: translate(-50%, -50%);
-
-              path {
-                fill: none;
-                stroke: color(secondary);
-                stroke-width: 1px;
-              }
+            @include mq(desktop-xs) {
+              font-size: 3.25rem;
             }
 
-            &:nth-child(2),
-            &:nth-child(3),
-            &:nth-child(4),
-            &:nth-child(5) {
-              position: absolute;
-
-              width: 12.1203%;
-              height: auto;
-
-              path {
-                fill: color(secondary);
-                stroke: none;
-              }
+            @include mq(tablet-sm) {
+              font-size: 2.75rem;
             }
 
-            &:nth-child(2) {
-              top: 0.5rem;
-              left: 0.5rem;
+            @include mq(phone) {
+              font-size: 2.25rem;
             }
-
-            &:nth-child(3) {
-              top: 0.5rem;
-              right: 0.5rem;
-            }
-
-            &:nth-child(4) {
-              bottom: 0.5rem;
-              left: 0.5rem;
-            }
-
-            &:nth-child(5) {
-              bottom: 0.5rem;
-              right: 0.5rem;
-            }
-          }
-
-          path {
-            fill: none;
-            stroke: color(secondary);
-            stroke-width: 1px;
           }
         }
 

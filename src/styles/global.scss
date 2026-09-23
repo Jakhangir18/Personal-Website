@@ -19,3 +19,23 @@
 @import '/fonts/bigger-display.css';
 @import '/fonts/editorial-new.css';
 @import '/fonts/fraktion-mono.css';
+
+// A visitor who asks the system for reduced motion gets no CSS animation and no
+// smooth scrolling. The scroll-driven scenes still play as they are scrolled --
+// turning those off entirely is a rebuild, not a media query -- but nothing
+// moves on its own any more.
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0.001ms !important;
+  }
+}

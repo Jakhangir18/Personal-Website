@@ -5,7 +5,6 @@ import SiteScrollbar from '../components/SiteScrollbar.astro'
 import SHero from '../components/SHero.astro'
 import SAbout from '../components/SAbout.astro'
 import SWork from '../components/SWork.astro'
-import SMyWay from '../components/SMyWay.astro'
 import SCTA from '../components/SCTA.astro'
 import ASeparator from '../components/ASeparator.astro'
 
@@ -16,11 +15,11 @@ import '../styles/global.scss'
   <head>
     <meta charset="utf-8" />
 
-    <title>Jack Portfolio</title>
+    <title>Jakhangir Tynshimov — Computer Science at Oregon State</title>
 
     <meta
       name="description"
-      content="A modern creative developer portfolio showcasing innovative web experiences." />
+      content="Jakhangir Tynshimov: computer science student at Oregon State, Co-President of GDG on Campus, building full-stack and hardware-adjacent software. Open to a Summer 2027 internship." />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
 
@@ -98,8 +97,6 @@ import '../styles/global.scss'
       <SWork />
 
       <ASeparator style="secondary" />
-
-      <SMyWay />
 
       <SCTA />
 
@@ -280,6 +277,15 @@ import '../styles/global.scss'
        * Init lenis
        */
       initLenis() {
+        // A visitor who asks for reduced motion keeps native scrolling: no
+        // smooth-scroll hijack, no inertia. ScrollTrigger reads native scroll
+        // on its own, so the sections still appear in the right order.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('is-reduced-motion')
+          gsap.ticker.lagSmoothing(0)
+          return
+        }
+
         const lenis = new Lenis()
 
         lenis.on('scroll', ScrollTrigger.update)
@@ -506,6 +512,12 @@ import '../styles/global.scss'
           5
           // 0
         )
+
+        // Reduced motion: run the same timeline to its end at once, so every
+        // final state and callback still lands, without the five-second curtain.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          tl.totalProgress(1, false)
+        }
       }
     }
 
